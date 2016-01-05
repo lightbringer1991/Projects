@@ -1,0 +1,2 @@
+Running with base URL list
+http://www.lawyerinfo.co.il/lawyer/5332-%D7%A2%D7%99%D7%9C%D7%99-%D7%90%D7%91%D7%99%D7%90%D7%9C
