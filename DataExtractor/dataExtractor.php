@@ -22,6 +22,7 @@ if ($option == 'deep') {
 
 error_log("Running with base URL list\r\n" . var_dump($urlList), 3, 'error_log.txt');
 for ($i = 0; $i < count($urlList); $i++) {
+	if ($urlList[$i] == '') { continue; }
 	// skip url if the link is for email
 	if (strpos($urlList[$i], 'mailto') !== false) { continue; }
 	error_log($urlList[$i] . "\r\n", 3, 'error_log.txt');
