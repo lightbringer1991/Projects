@@ -78,9 +78,8 @@ $('#form-emailExtractor').on('submit', function(event) {
 			type: 'POST',
 			url: 'dataExtractor.php',
 			data: data,
-			success: function(returnedData) {
-				// alert('Completed');
-				alert(returnedData);
+			success: function() {
+				alert('Completed');
 				$("#container-download").show();
 			}
 		});
