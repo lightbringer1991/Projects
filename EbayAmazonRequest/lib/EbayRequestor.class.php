@@ -24,6 +24,7 @@ class EbayRequestor {
 								<value>1000</value>
 							</itemFilter>
 							<sortOrder>BestMatch</sortOrder>
+							<outputSelector>SellerInfo</outputSelector>
 						</findItemsAdvancedRequest>";
 		$header = array(
 			'X-EBAY-SOA-OPERATION-NAME: findItemsByKeywords',
@@ -34,6 +35,7 @@ class EbayRequestor {
 			'Content-Type: text/xml;charset=utf-8'
 		);
 		$this -> data = self::executeCurl(self::$serviceAPIURL, $header, $xmlRequest);
+		error_log(date('d/m/Y H:i:s') . " - Ebay data retrieved\r\n", 3, 'error_log.txt');
 		return $this -> data;
 	}
 
@@ -46,14 +48,14 @@ class EbayRequestor {
 		try {
 			$simpleXML = new SimpleXMLElement($xmlResponse);
 			foreach ($simpleXML -> searchResult -> item as $i) {
-				$itemData = new SimpleXMLElement(self::getItemByItemID($i -> itemId));
+				$priceAttributes = $i -> sellingStatus -> currentPrice -> attributes();
 				$data = array(
 					'picture' => $i -> galleryURL -> __toString(),
 					'url' => $i -> viewItemURL -> __toString(),
 					'title' => $i -> title -> __toString(),
 					'price' => $i -> sellingStatus -> currentPrice -> __toString(),
-					'currencyId' => $i -> sellingStatus -> currentPrice -> attributes()['currencyId'] -> __toString(),
-					'feedback' => $itemData -> Item -> Seller -> PositiveFeedbackPercent -> __toString(),
+					'currencyId' => $priceAttributes['currencyId'] -> __toString(),
+					'feedback' => $i -> sellerInfo -> positiveFeedbackPercent -> __toString(),
 					'shippingCost' => $i -> shippingInfo -> shippingServiceCost -> __toString()
 				);
 				$output[$i -> itemId -> __toString()] = $data;
@@ -65,15 +67,16 @@ class EbayRequestor {
 		return $output;
 	}
 
-	public static function getItemByItemID($itemID) {
+	public static function getShippingCost($itemID) {
 		$xmlRequest = "<?xml version='1.0' encoding='utf-8'?>
-						<GetSingleItemRequest xmlns='urn:ebay:apis:eBLBaseComponents'>
-							<ItemID>$itemID</ItemID>
-							<IncludeSelector>Details
-							</IncludeSelector>
-						</GetSingleItemRequest>";
+		<GetShippingCostsRequest xmlns='urn:ebay:apis:eBLBaseComponents'>
+			<DestinationCountryCode>AU</DestinationCountryCode>
+			<DestinationPostalCode>3350</DestinationPostalCode>
+			<IncludeDetails>1</IncludeDetails>
+			<ItemID>$itemID</ItemID>
+		</GetShippingCostsRequest>";
 		$header = array(
-			'X-EBAY-API-CALL-NAME: GetSingleItem',
+			'X-EBAY-API-CALL-NAME: GetShippingCosts',
 			'X-EBAY-API-APP-ID: ' . self::$appID,
 			'X-EBAY-API-VERSION: 949',
 			'X-EBAY-API-REQUEST-ENCODING: XML',
@@ -81,6 +84,7 @@ class EbayRequestor {
 			'Content-Type: text/xml;charset=utf-8'
 		);
 		return self::executeCurl(self::$shoppingAPIURL, $header, $xmlRequest);
+
 	}
 
 	// return curl output

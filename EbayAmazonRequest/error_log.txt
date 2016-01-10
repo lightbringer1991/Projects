@@ -1,0 +1,26 @@
+10/01/2016 09:05:34 - Ebay API start
+10/01/2016 09:05:34 - Amazon API start
+10/01/2016 09:05:37 - Ebay data retrieved
+10/01/2016 09:05:40 - Amazon data retrieved
+10/01/2016 09:05:40 - Review Rating for B00U8KSUIG retrieved
+10/01/2016 09:05:40 - Review Rating for B00VIVU2N0 retrieved
+10/01/2016 09:05:40 - Review Rating for B014K4Q0CI retrieved
+10/01/2016 09:05:40 - Review Rating for B00YL8ZASE retrieved
+10/01/2016 09:05:40 - Review Rating for B0143NXM68 retrieved
+10/01/2016 09:05:40 - Review Rating for B00TX5PL52 retrieved
+10/01/2016 09:05:40 - Review Rating for B00WYZ1WJM retrieved
+10/01/2016 09:05:40 - Review Rating for B014IAX1DU retrieved
+10/01/2016 11:44:03 - Amazon API start
+10/01/2016 11:44:03 - Ebay API start
+10/01/2016 11:44:05 - Ebay data retrieved
+10/01/2016 11:44:05 - Amazon data retrieved
+10/01/2016 11:44:05 - Review Rating for B00WR28SA8 retrieved
+10/01/2016 11:44:05 - Review Rating for B00WR292JE retrieved
+10/01/2016 11:44:05 - Review Rating for B00V0923TG retrieved
+10/01/2016 11:44:05 - Review Rating for B00WR28LLE retrieved
+10/01/2016 11:44:05 - Review Rating for B00U5ZT8OO retrieved
+10/01/2016 11:44:05 - Review Rating for B00U9U983Q retrieved
+10/01/2016 11:44:05 - Review Rating for B00U9U9F7U retrieved
+10/01/2016 11:44:05 - Review Rating for B00U9U8RZQ retrieved
+10/01/2016 11:44:05 - Review Rating for B00MYBR75O retrieved
+10/01/2016 11:44:05 - Review Rating for B016Q58X9W retrieved
