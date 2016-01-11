@@ -39,7 +39,7 @@ class EbayRequestor {
 			'Content-Type: text/xml;charset=utf-8'
 		);
 		$this -> data = self::executeCurl(self::$serviceAPIURL, $header, $xmlRequest);
-		error_log(date('d/m/Y H:i:s') . " - Ebay data retrieved\r\n", 3, 'error_log.txt');
+		error_log(gmdate('d/m/Y H:i:s') . " - Ebay data retrieved\r\n", 3, 'error_log.txt');
 		return $this -> data;
 	}
 
@@ -63,6 +63,7 @@ class EbayRequestor {
 					'feedback' => $i -> sellerInfo -> positiveFeedbackPercent -> __toString(),
 					'shippingCost' => $i -> shippingInfo -> shippingServiceCost -> __toString()
 				);
+				if ($data['picture'] == '') { $data['picture'] = 'images/ebay-noimage.gif'; }
 				$output[$i -> itemId -> __toString()] = $data;
 			}
 			

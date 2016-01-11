@@ -6,13 +6,13 @@ function generateTable($data, $logoURL) {
 	$output = '';
 	foreach ($data as $k => $v) {
 		$output .= "<tr id='$k'>
-						<td><img src='$logoURL' class='img-rounded'></td>
-						<td><img src='{$v['picture']}' class='img-rounded'></td>
-						<td>{$v['title']}</td>
-						<td>{$v['price']}(from {$v['listprice']})</td>
-						<td>{$v['feedback']}</td>
-						<td>{$v['shippingCost']}</td>
-						<td><a target='_blank' href='{$v['url']}'>URL</a></td>
+						<td class='col-sm-2 col-md-2 col-lg-2'><img src='$logoURL' class='img-rounded'></td>
+						<td class='col-sm-2 col-md-2 col-lg-2'><img src='{$v['picture']}' class='img-rounded'></td>
+						<td class='col-sm-2 col-md-2 col-lg-2'>{$v['title']}</td>
+						<td class='col-sm-2 col-md-2 col-lg-2'>{$v['price']}(from {$v['listprice']})</td>
+						<td class='col-sm-2 col-md-2 col-lg-2'>{$v['feedback']}</td>
+						<td class='col-sm-2 col-md-2 col-lg-2'>{$v['shippingCost']}</td>
+						<td class='col-sm-2 col-md-2 col-lg-2'><a target='_blank' href='{$v['url']}'>URL</a></td>
 					</tr>";
 	}
 	return $output;

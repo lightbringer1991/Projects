@@ -25,6 +25,7 @@ class AmazonRequestor {
 			"Condition" => "New",
 			"Timestamp" => gmdate('Y-m-d\TH:i:s\Z'),
 			"IncludeReviewsSummary" => 'True',
+			"MerchantId" => 'Amazon'
 			// "MinPercentageOff" => 0
 		);
 
@@ -35,7 +36,7 @@ class AmazonRequestor {
 		curl_setopt($ch, CURLOPT_TIMEOUT, 15);
 
 		$this -> data = curl_exec($ch);
-		error_log(date('d/m/Y H:i:s') . " - Amazon data retrieved\r\n", 3, 'error_log.txt');
+		error_log(gmdate('d/m/Y H:i:s') . " - Amazon data retrieved\r\n", 3, 'error_log.txt');
 		return $this -> data;
 	}
 
@@ -96,9 +97,9 @@ class AmazonRequestor {
 				}
 			}
 			// get all rating in the same request
-			error_log(date('d/m/Y H:i:s') . " - Start retrieving all Review Ratings\r\n", 3, 'error_log.txt');
+			error_log(gmdate('d/m/Y H:i:s') . " - Start retrieving all Review Ratings\r\n", 3, 'error_log.txt');
 			$ratingList = $this -> getAllReviewRating($reviewURLList);
-			error_log(date('d/m/Y H:i:s') . " - All Review Rating retrieved\r\n", 3, 'error_log.txt');
+			error_log(gmdate('d/m/Y H:i:s') . " - All Review Rating retrieved\r\n", 3, 'error_log.txt');
 			foreach ($ratingList as $asin => $rating) {
 				$output[$asin]['feedback'] = $rating;
 			}
