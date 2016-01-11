@@ -23,6 +23,10 @@ class EbayRequestor {
 								<name>Condition</name>
 								<value>1000</value>
 							</itemFilter>
+							<affiliate>
+								<networkId>9</networkId>
+								<trackingId>5337802388</trackingId>
+							</affiliate>
 							<sortOrder>BestMatch</sortOrder>
 							<outputSelector>SellerInfo</outputSelector>
 						</findItemsAdvancedRequest>";
