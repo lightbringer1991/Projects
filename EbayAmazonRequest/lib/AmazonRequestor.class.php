@@ -24,7 +24,8 @@ class AmazonRequestor {
 			"ResponseGroup" => "Images,ItemAttributes,Offers,Reviews",
 			"Condition" => "New",
 			"Timestamp" => gmdate('Y-m-d\TH:i:s\Z'),
-			"IncludeReviewsSummary" => 'True'
+			"IncludeReviewsSummary" => 'True',
+			// "MinPercentageOff" => 0
 		);
 
 		$requestURL = $this -> generateRequestURL($params);
@@ -59,9 +60,12 @@ class AmazonRequestor {
 				$picture = "";
 				if (isset($i -> MediumImage)) {
 					$picture = $i -> MediumImage -> URL -> __toString();
-				} else {
+				} elseif (isset($i -> ImageSets)) {
 					$imageSetList = $i -> ImageSets -> ImageSet;
 					$picture = $imageSetList[0] -> MediumImage -> URL -> __toString();
+				} else {
+					// display no image available
+					$picture = "images/amazon-noimage.jpg";
 				}
 
 				if ($i -> Offers -> TotalOffers -> __toString() == '0') {
@@ -71,6 +75,7 @@ class AmazonRequestor {
 						'url' => $i -> DetailPageURL -> __toString(),
 						'title' => $i -> ItemAttributes -> Title -> __toString(),
 						'price' => 0,
+						'listprice' => 0,
 						'currencyId' => 'N/A',
 						'shippingCost' => 'N/A'						
 					);
@@ -80,15 +85,20 @@ class AmazonRequestor {
 						'url' => $i -> DetailPageURL -> __toString(),
 						'title' => $i -> ItemAttributes -> Title -> __toString(),
 						'price' => $i -> Offers -> Offer -> OfferListing -> Price -> FormattedPrice -> __toString(),
+						'listprice' => $i -> Offers -> Offer -> OfferListing -> Price -> FormattedPrice -> __toString(),
 						'currencyId' => $i -> Offers -> Offer -> OfferListing -> Price -> CurrencyCode -> __toString(),
 						'shippingCost' => 'N/A'
 					);
-					error_log(date('d/m/Y H:i:s') . " - Review Rating for " . $i -> ASIN -> __toString() . " retrieved\r\n", 3, 'error_log.txt');
+					if (isset($i -> ItemAttributes -> ListPrice) && ($i -> ItemAttributes -> ListPrice -> FormattedPrice -> __toString() != 0) ) {
+						$data['listprice'] = $i -> ItemAttributes -> ListPrice -> FormattedPrice -> __toString();
+					}
 					$output[$i -> ASIN -> __toString()] = $data;
 				}
 			}
 			// get all rating in the same request
+			error_log(date('d/m/Y H:i:s') . " - Start retrieving all Review Ratings\r\n", 3, 'error_log.txt');
 			$ratingList = $this -> getAllReviewRating($reviewURLList);
+			error_log(date('d/m/Y H:i:s') . " - All Review Rating retrieved\r\n", 3, 'error_log.txt');
 			foreach ($ratingList as $asin => $rating) {
 				$output[$asin]['feedback'] = $rating;
 			}

@@ -58,6 +58,7 @@ class EbayRequestor {
 					'url' => $i -> viewItemURL -> __toString(),
 					'title' => $i -> title -> __toString(),
 					'price' => $i -> sellingStatus -> currentPrice -> __toString(),
+					'listprice' => $i -> sellingStatus -> currentPrice -> __toString(),
 					'currencyId' => $priceAttributes['currencyId'] -> __toString(),
 					'feedback' => $i -> sellerInfo -> positiveFeedbackPercent -> __toString(),
 					'shippingCost' => $i -> shippingInfo -> shippingServiceCost -> __toString()

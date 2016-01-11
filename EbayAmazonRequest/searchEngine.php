@@ -9,7 +9,7 @@ function generateTable($data, $logoURL) {
 						<td><img src='$logoURL' class='img-rounded'></td>
 						<td><img src='{$v['picture']}' class='img-rounded'></td>
 						<td>{$v['title']}</td>
-						<td>{$v['price']}</td>
+						<td>{$v['price']}(from {$v['listprice']})</td>
 						<td>{$v['feedback']}</td>
 						<td>{$v['shippingCost']}</td>
 						<td><a target='_blank' href='{$v['url']}'>URL</a></td>
@@ -18,7 +18,7 @@ function generateTable($data, $logoURL) {
 	return $output;
 }
 
-// // -------- main script
+// -------- main script
 $keyword = $_POST['keyword'];
 $site = $_POST['site'];
 
