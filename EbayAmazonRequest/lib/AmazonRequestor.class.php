@@ -145,7 +145,7 @@ class AmazonRequestor {
 
 		while ($active && $mrc == CURLM_OK) {
 			if (curl_multi_select($mh) == -1) {
-				usleep(200);
+				usleep(10000);			// sleep for 0.01s
 			}
 			do {
 				$mrc = curl_multi_exec($mh, $active);
