@@ -30,6 +30,7 @@ class Beam {
 
 	}
 
+	// functions getHardNodes_xxx() should always be run in order
 	// get hard nodes from geomery data
 	// this function assumes that the provided data is well-formed
 	// i.e. end of a geometry is the beginning of another geometry
@@ -44,7 +45,7 @@ class Beam {
 		$this -> nodes = Node::quickSort($this -> nodes);
 	}
 
-	// functions getHardNodes_xxx() should always be run in order
+	// get hard nodes from support data
 	private function getHardNodes_support() {
 		foreach ($this -> rawData['support'] as $sptData) {
 			$newNode = new Node(doubleval($sptData['location']), 0, 0);
@@ -53,11 +54,14 @@ class Beam {
 		$this -> nodes = Node::quickSort($this -> nodes);
 	}
 
+	// get hard nodes from loading data
+	// geometry == Distributed => collect startLocation and endLocation, plus zeroLocation if startValue and endValue have different signs
+	// geometry == Point => collect startLocation only
 	private function getHardNodes_loading() {
 		foreach ($this -> rawData['loading'] as $loadingData) {
 			if ($loadingData['geometry'] == 'Distributed') {
-				$startNode = new Node($loadingData['startLocation'], 0, 0);
-				$endNode = new Node($loadingData['endLocation'], 0, 0);
+				$startNode = new Node(doubleVal($loadingData['startLocation']), 0, 0);
+				$endNode = new Node(doubleVal($loadingData['endLocation']), 0, 0);
 				$this -> addNode($startNode);
 				$this -> addNode($endNode);
 
@@ -68,6 +72,9 @@ class Beam {
 					$zeroNode = $this -> calculateZeroPosition($loadingData);
 					$this -> addNode($zeroNode);
 				}
+			} elseif ($loadingData['geometry'] == 'Point') {
+				$newNode = new Node(doubleVal($loadingData['startLocation']), 0, 0);
+				$this -> addNode($newNode);
 			}
 		}
 		$this -> nodes = Node::quickSort($this -> nodes);
