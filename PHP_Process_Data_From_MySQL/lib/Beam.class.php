@@ -115,7 +115,7 @@ class Beam {
 			foreach ($this -> rawData['geometry'] as $geoData) {
 				$sNode = new Node($geoData['start'], 0, 0);
 				$eNode = new Node($geoData['end'], 0, 0);
-				if ( ($startNode -> compare($sNode) == 0) && ($endNode -> compare($eNode) == 0) ) {
+				if ( ($startNode -> compare($sNode) >= 0) && ($endNode -> compare($eNode) <= 0) ) {
 					$pk4ba_mat = $geoData['matID'];
 					$pk4ba_g = $geoData['rcdNo'];
 					break;
