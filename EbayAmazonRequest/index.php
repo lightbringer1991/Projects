@@ -56,8 +56,11 @@ $('.loading').hide();
 $('#form-keywordSearch').on('submit', function(event) {
 	event.preventDefault();
 	var keyword = $(event.currentTarget).find("input[name='keyword']").val();
+	if (keyword.length > 350) {
+		alert(keyword.length + " Keyword too long (must be less than 350 characters)");
+		return false;
+	}
 	$.when( ajaxCall(keyword, 'start'), ajaxCall(keyword, 'ebay'), ajaxCall(keyword, 'amazon'), ajaxCall(keyword, 'end') ).done(function(a1, a2, a3, a4) {
-		alert('Completed');
 		$("#container-result [data-role='content']").html(a1[0] + a2[0] + a3[0] + a4[0]);
 		$("#container-result").show();
 	});
@@ -72,8 +75,29 @@ $(document).ajaxStop(function()
     $('.loading').hide();  // hide loading indicator
 });
 
+$(document).on('click', "a[data-role='url_amazonReviews']", function() {
+	$("#modal-amazonReviews").find('.modal-body iframe').attr('src', $(this).data('href'));
+});
+
 });
 </script>
+
+<div class="modal fade" tabindex="-1" role="dialog" id='modal-amazonReviews'>
+<div class="modal-dialog modal-lg">
+<div class="modal-content">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">Modal title</h4>
+	</div>
+	<div class="modal-body">
+		<iframe class='col-sm-12 col-md-12 col-lg-12' height='600px'></iframe>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	</div>
+</div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 </body>
 </html>
