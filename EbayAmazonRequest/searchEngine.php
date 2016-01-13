@@ -5,11 +5,16 @@ require 'lib/AmazonRequestor.class.php';
 function generateTable($data, $logoURL) {
 	$output = '';
 	foreach ($data as $k => $v) {
+		$discountInfo = ($v['listprice'] == $v['price']) ? "" : "(was {$v['listprice']})";
+		// add discount percentage
+		if ( $v['percentagesaved'] != 0 ) {
+			$discountInfo .= "(save {$v['percentagesaved']}%)";
+		}
 		$output .= "<tr id='$k'>
 						<td class='col-sm-2 col-md-2 col-lg-2'><img src='$logoURL' class='img-rounded'></td>
 						<td class='col-sm-2 col-md-2 col-lg-2'><img src='{$v['picture']}' class='img-rounded'></td>
 						<td class='col-sm-2 col-md-2 col-lg-2'>{$v['title']}</td>
-						<td class='col-sm-2 col-md-2 col-lg-2'>{$v['price']}(from {$v['listprice']})</td>
+						<td class='col-sm-2 col-md-2 col-lg-2'>{$v['price']}$discountInfo</td>
 						<td class='col-sm-2 col-md-2 col-lg-2'>{$v['feedback']}</td>
 						<td class='col-sm-2 col-md-2 col-lg-2'>{$v['shippingCost']}</td>
 						<td class='col-sm-2 col-md-2 col-lg-2'><a target='_blank' href='{$v['url']}'>URL</a></td>

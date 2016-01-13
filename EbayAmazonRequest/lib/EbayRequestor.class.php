@@ -4,7 +4,7 @@ class EbayRequestor {
 	private static $shoppingAPIURL = 'http://open.api.ebay.com/shopping';
 	private $keyword;
 	private $data;
-	private static $appID = 'IBM64d73d-91f0-48db-8c89-6d948fc030f';
+	private static $appID = 'Solecomp-c20b-4fa6-a1da-0ddfc9cbd519';
 
 	public function __construct($keyword) {
 		$this -> keyword = $keyword;
@@ -14,7 +14,7 @@ class EbayRequestor {
 	public function runRequest() {
 		$xmlRequest = "<?xml version='1.0' encoding='utf-8'?>
 						<findItemsAdvancedRequest xmlns='http://www.ebay.com/marketplace/search/v1/services'>
-							<keywords>" . $this -> keyword . "</keywords>
+							<keywords>" . $this -> escapeStringToXMLformat($this -> keyword) . "</keywords>
 							<paginationInput>
 								<entriesPerPage>10</entriesPerPage>
 								<pageNumber>1</pageNumber>
@@ -52,18 +52,30 @@ class EbayRequestor {
 		try {
 			$simpleXML = new SimpleXMLElement($xmlResponse);
 			foreach ($simpleXML -> searchResult -> item as $i) {
+				// get list price
+				$listPrice = $i -> sellingStatus -> currentPrice -> __toString();
+				if (isset($i -> discountPriceInfo)) {
+					$listPrice = $i -> discountPriceInfo -> originalRetailPrice -> __toString();
+				}
+
+
+
 				$priceAttributes = $i -> sellingStatus -> currentPrice -> attributes();
 				$data = array(
 					'picture' => $i -> galleryURL -> __toString(),
 					'url' => $i -> viewItemURL -> __toString(),
 					'title' => $i -> title -> __toString(),
 					'price' => $i -> sellingStatus -> currentPrice -> __toString(),
-					'listprice' => $i -> sellingStatus -> currentPrice -> __toString(),
+					'listprice' => $listPrice,
 					'currencyId' => $priceAttributes['currencyId'] -> __toString(),
 					'feedback' => $i -> sellerInfo -> positiveFeedbackPercent -> __toString(),
 					'shippingCost' => $i -> shippingInfo -> shippingServiceCost -> __toString()
 				);
 				if ($data['picture'] == '') { $data['picture'] = 'images/ebay-noimage.gif'; }
+
+				// calculate percentage saved
+				$data['percentagesaved'] = number_format(($data['listprice'] - $data['price']) / $data['listprice'] * 100, 2);
+
 				$output[$i -> itemId -> __toString()] = $data;
 			}
 			
@@ -105,6 +117,16 @@ class EbayRequestor {
 		$data = curl_exec($curlHandle);
 		curl_close($curlHandle);
 		return $data;
+	}
+
+	// escape special character to fit xml format
+	private function escapeStringToXMLformat($str) {
+		$str = str_replace('"', "&quot;", $str);
+		$str = str_replace("'", "&apos;", $str);
+		$str = str_replace('<', "&lt;", $str);
+		$str = str_replace('>', "&gt;", $str);
+		$str = str_replace('&', "&amp;", $str);
+		return $str;
 	}
 }
 ?>

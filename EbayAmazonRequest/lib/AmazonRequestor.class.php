@@ -25,7 +25,7 @@ class AmazonRequestor {
 			"Condition" => "New",
 			"Timestamp" => gmdate('Y-m-d\TH:i:s\Z'),
 			"IncludeReviewsSummary" => 'True',
-			"MerchantId" => 'Amazon'
+			// "MerchantId" => 'Amazon'
 			// "MinPercentageOff" => 0
 		);
 
@@ -50,14 +50,7 @@ class AmazonRequestor {
 			$simpleXML = new SimpleXMLElement($xmlResponse);
 			$reviewURLList = array();
 			foreach ($simpleXML -> Items -> Item as $i) {
-				// get review url
-				$itemLinksList = $i -> ItemLinks -> ItemLink;
-				foreach ($itemLinksList as $il) {
-					if ($il -> Description -> __toString() == 'All Customer Reviews') {
-						$reviewURLList[$i -> ASIN -> __toString()] = $il -> URL -> __toString();
-						break;
-					}
-				}
+				// get display picture URL
 				$picture = "";
 				if (isset($i -> MediumImage)) {
 					$picture = $i -> MediumImage -> URL -> __toString();
@@ -69,41 +62,49 @@ class AmazonRequestor {
 					$picture = "images/amazon-noimage.jpg";
 				}
 
-				if ($i -> Offers -> TotalOffers -> __toString() == '0') {
-					// print $i -> CustomerReviews -> IFrameURL -> __toString() . "\n";
-					$output[$i -> ASIN -> __toString()] = array(
+				$data = array();
+				if (!isset($i -> Offers -> TotalOffers) || ($i -> Offers -> TotalOffers -> __toString() == '0')) {
+					$data = array(
 						'picture' => $picture,
 						'url' => $i -> DetailPageURL -> __toString(),
 						'title' => $i -> ItemAttributes -> Title -> __toString(),
 						'price' => 0,
 						'listprice' => 0,
+						'percentagesaved' => 0,
 						'currencyId' => 'N/A',
 						'shippingCost' => 'N/A'						
 					);
 				} else {
+					// get listing price
+					$listPrice = $i -> Offers -> Offer -> OfferListing -> Price -> FormattedPrice -> __toString();
+					if (isset($i -> ItemAttributes -> ListPrice) && ($i -> ItemAttributes -> ListPrice -> FormattedPrice -> __toString() != '0') ) {
+						$listPrice = $i -> ItemAttributes -> ListPrice -> FormattedPrice -> __toString();
+					}
+
+					// get price
+					$price = $i -> Offers -> Offer -> OfferListing -> Price -> FormattedPrice -> __toString();
+					if (isset($i -> Offers -> Offer -> OfferListing -> SalePrice)) {
+						$price = $i -> Offers -> Offer -> OfferListing -> SalePrice -> FormattedPrice -> __toString();
+					}
+
 					$data = array(
 						'picture' => $picture,
 						'url' => $i -> DetailPageURL -> __toString(),
 						'title' => $i -> ItemAttributes -> Title -> __toString(),
-						'price' => $i -> Offers -> Offer -> OfferListing -> Price -> FormattedPrice -> __toString(),
-						'listprice' => $i -> Offers -> Offer -> OfferListing -> Price -> FormattedPrice -> __toString(),
+						'price' => $price,
+						'listprice' => $listPrice,
+						'percentagesaved' => 0,
 						'currencyId' => $i -> Offers -> Offer -> OfferListing -> Price -> CurrencyCode -> __toString(),
 						'shippingCost' => 'N/A'
 					);
-					if (isset($i -> ItemAttributes -> ListPrice) && ($i -> ItemAttributes -> ListPrice -> FormattedPrice -> __toString() != 0) ) {
-						$data['listprice'] = $i -> ItemAttributes -> ListPrice -> FormattedPrice -> __toString();
+
+					if (isset($i -> Offers -> Offer -> OfferListing -> PercentageSaved)) {
+						$data['percentagesaved'] = $i -> Offers -> Offer -> OfferListing -> PercentageSaved -> __toString();
 					}
-					$output[$i -> ASIN -> __toString()] = $data;
 				}
+				$data['feedback'] = "<a data-role='url_amazonReviews' data-toggle='modal' data-target='#modal-amazonReviews' data-href='" . $i -> CustomerReviews -> IFrameURL -> __toString() . "'>Review</a>";
+				$output[$i -> ASIN -> __toString()] = $data;
 			}
-			// get all rating in the same request
-			error_log(gmdate('d/m/Y H:i:s') . " - Start retrieving all Review Ratings\r\n", 3, 'error_log.txt');
-			$ratingList = $this -> getAllReviewRating($reviewURLList);
-			error_log(gmdate('d/m/Y H:i:s') . " - All Review Rating retrieved\r\n", 3, 'error_log.txt');
-			foreach ($ratingList as $asin => $rating) {
-				$output[$asin]['feedback'] = $rating;
-			}
-			
 		} catch(Exception $e) {
 			print_r($e -> getMessage());
 		}
@@ -132,52 +133,6 @@ class AmazonRequestor {
 		$request_url = 'http://' . $this -> endpoint . $this -> uri . '?' . $canonical_query_string . '&Signature='.rawurlencode($signature);
 
 		return $request_url;
-	}
-
-	// input array(<ASIN> => <url>)
-	// return array array(<ASIN> => <rating>)
-	public function getAllReviewRating($urlList) {
-		$curlList = array();
-		$mh = curl_multi_init();
-		foreach ($urlList as $asin => $u) {
-			$curlList[$asin] = curl_init($u);
-			curl_setopt_array($curlList[$asin], array(
-				CURLOPT_RETURNTRANSFER => 1,
-				CURLOPT_VERBOSE => 1,
-				CURLOPT_DNS_USE_GLOBAL_CACHE => 0,
-				CURLOPT_DNS_CACHE_TIMEOUT => 2
-			));
-			curl_multi_add_handle($mh, $curlList[$asin]);
-		}
-		$active = null;
-		do {
-			$mrc = curl_multi_exec($mh, $active);
-		} while ($mrc == CURLM_CALL_MULTI_PERFORM);
-
-		while ($active && $mrc == CURLM_OK) {
-			if (curl_multi_select($mh) == -1) {
-				usleep(10000);			// sleep for 0.01s
-			}
-			do {
-				$mrc = curl_multi_exec($mh, $active);
-			} while ($mrc == CURLM_CALL_MULTI_PERFORM);
-		}
-
-		$output = array();
-		foreach ($urlList as $asin => $u) {
-			$output[$asin] = $this -> getRating(curl_multi_getcontent($curlList[$asin])) . "\n";
-			curl_multi_remove_handle($mh, $curlList[$asin]);
-			curl_close($curlList[$asin]);
-		}
-		return $output;
-	}
-
-	private function getRating($htmlCode) {
-		$matches = array();
-		preg_match("/<span class=\"arp-rating-out-of-text\">([^<]+)<\/span>/", $htmlCode, $matches);
-		$tokens = explode(' ', $matches[1]);
-		return $tokens[0];
-
 	}
 }
 
