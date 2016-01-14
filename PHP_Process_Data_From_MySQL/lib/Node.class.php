@@ -1,8 +1,11 @@
 <?php
+require_once "Loading.class.php";
+
 class Node {
 	public $x;
 	public $y;
 	public $z;
+	public $loading;
 
 	// acceptable distance between Nodes to be accepted as the same Node
 	public static $delta = 0.0000001;
@@ -11,6 +14,7 @@ class Node {
 		$this -> x = $x;
 		$this -> y = $y;
 		$this -> z = $z;
+		$this -> loading = new Loading();
 	}
 
 	// check if a node is between 2 given nodes

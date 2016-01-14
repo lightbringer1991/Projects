@@ -89,5 +89,39 @@ for ($i = 0; $i < count($beam -> elements); $i++) {
 	</table>
 	</div>
 </div>
+
+<div class='row'>
+	<div class='col-sm-offset-1 col-md-offset-1 col-lg-offset-1 col-sm-8 col-md-8 col-lg-8'>
+	<table class='table table-bordered table-striped'>
+		<thead>
+		<tr>
+			<th class='col-sm-1 col-md-1 col-lg-1'>Node ID</th>
+			<th class='col-sm-1 col-md-1 col-lg-1'>fx</th>
+			<th class='col-sm-2 col-md-2 col-lg-2'>fy</th>
+			<th class='col-sm-2 col-md-3 col-lg-2'>fz</th>
+			<th class='col-sm-2 col-md-3 col-lg-2'>mx</th>
+			<th class='col-sm-2 col-md-3 col-lg-2'>my</th>
+			<th class='col-sm-2 col-md-3 col-lg-2'>mz</th>
+		</tr>
+		</thead>
+		<tbody>
+<?php
+for ($i = 0; $i < count($beam -> nodes); $i++) {
+	echo "	<tr>
+				<td>$i</td>
+				<td>" . $beam -> nodes[$i] -> loading -> fx . "</td>
+				<td>" . $beam -> nodes[$i] -> loading -> fy . "</td>
+				<td>" . $beam -> nodes[$i] -> loading -> fz . "</td>
+				<td>" . $beam -> nodes[$i] -> loading -> mx . "</td>
+				<td>" . $beam -> nodes[$i] -> loading -> my . "</td>
+				<td>" . $beam -> nodes[$i] -> loading -> mz . "</td>
+			</tr>";
+}
+?>
+		</tbody>
+	</table>
+	</div>
+</div>
+
 </body>
 </html>

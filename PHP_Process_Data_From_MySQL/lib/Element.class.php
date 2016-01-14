@@ -16,5 +16,9 @@ class Element {
 	public function increaseLength($length) {
 		$this -> endNode -> x += $length;
 	}
+
+	public function getLength() {
+		return $this -> endNode -> x - $this -> startNode -> x;
+	}
 }
 ?>

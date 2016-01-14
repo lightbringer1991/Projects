@@ -6,7 +6,6 @@ class Beam {
 	private $rawData;
 	public $nodes;
 	public $elements;
-	public $loading;
 	public $el_max;			// element max length
 
 	// data is retrieved from Database::getData() function
@@ -14,7 +13,6 @@ class Beam {
 		$this -> rawData = $data;
 		$this -> nodes = array();
 		$this -> elements = array();
-		$this -> loading = array();
 		$this -> el_max = $el_max;
 	}
 
@@ -27,6 +25,9 @@ class Beam {
 		
 		// generate elements
 		$this -> generateElements();
+
+		// generate loadings
+		$this -> generateLoadings();
 
 	}
 
@@ -125,6 +126,41 @@ class Beam {
 		}
 	}
 
+	// only invoke this function AFTER all nodes are generated
+	private function generateLoadings() {
+		// get all predefined loading data
+		foreach ($this -> nodes as $n) {
+			foreach ($this -> rawData['loading'] as $loadingData) {
+				if ( ($loadingData['geometry'] == 'Point') && ($loadingData['type'] == 'Force') && ($loadingData['startLocation'] == $n -> x) ) {
+					$n -> loading -> fz = $loadingData['startValue'];
+				}
+				if ( ($loadingData['geometry'] == 'Point') && ($loadingData['type'] == 'Moment') && ($loadingData['startLocation'] == $n -> x) ) {
+					$n -> loading -> my = $loadingData['startValue'];
+				}
+			}
+		}
+		// foreach ($this -> nodes as $n) {
+		// 	if ( ($n -> loading -> fz != null) || ($n -> loading -> my != null) ) { print var_dump($n); }
+		// }
+		// begin calculating the rest
+		foreach ($this -> rawData['loading'] as $loadingData) {
+			if ( $loadingData['geometry'] == 'Distributed' ) {
+				// find all nodes within this space
+				$startNode = new Node($loadingData['startLocation'], 0, 0);
+				$endNode = new Node($loadingData['endLocation'], 0, 0);
+				$nodeList = $this -> getAllNodesBetweenNodes($startNode, $endNode);
+				$vList = $this -> calculateLoading($nodeList, $loadingData['startValue'], $loadingData['endValue']);
+				for ($i = 0; $i < count($nodeList); $i++) {
+					if ($loadingData['type'] == 'Force') {
+						$nodeList[$i] -> loading -> fz = $vList[$i];
+					} elseif ($loadingData['type'] == 'Moment') {
+						$nodeList[$i] -> loading -> my = $vList[$i];
+					}
+				}
+			}
+		}
+	}
+
 	// ignore new node if it's already in the list
 	// otherwise add it in
 	private function addNode($newNode) {
@@ -141,6 +177,52 @@ class Beam {
 		$loadingLength = $data['endLocation'] - $data['startLocation'];
 		$zeroPoint = $data['startLocation'] + ($loadingLength * $loadingRatio) / (1 + $loadingRatio);
 		return new Node($zeroPoint, 0, 0);
+	}
+
+	// obtain the list of nodes between 2 given nodes, sorted in order
+	private function getAllNodesBetweenNodes($n1, $n2) {
+		$output = array();
+		foreach ($this -> nodes as $n) {
+			if ( ($n1 -> compare($n) <= 0) && ($n2 -> compare($n) >= 0) ) { array_push($output, $n); }
+		}
+		return Node::quickSort($output);
+	}
+
+	// assuming $nodeList is sorted in ascending order
+	private function calculateLoading($nodeList, $fs, $fe) {
+		$totalLength = new Element($nodeList[0], $nodeList[count($nodeList) - 1], 0, 0);
+		$totalLength = $totalLength -> getLength();
+
+		// get all f for each node
+		$fArray = array($fs);
+		$eArray = array();
+		for ($i = 1; $i < count($nodeList) - 1; $i++) {
+			// element between end node and node i
+			$elsi = new Element($nodeList[$i], $nodeList[count($nodeList) - 1], 0, 0);
+			$eArray[$i - 1] = $elsi;
+			$fArray[$i] = $fe + ($fs - $fe) / $totalLength * $eArray[$i - 1] -> getLength();
+		}
+		// generate last element
+		$eArray[] = new Element($nodeList[count($nodeList) - 2], $nodeList[count($nodeList) - 1], 0, 0);
+		$fArray[] = $fe;
+
+		// calculate all v for each node
+		// calculate start node value
+		$f12 = ($fArray[0] - $fArray[1]) / 2;
+		$vs = ($fArray[0] + $f12) * $eArray[0] -> getLength() / 2;
+		$vArray = array(number_format($vs, 2));
+		for ($i = 1; $i < count($nodeList) - 1; $i++) {
+			// calculate f(i, i+1), e.g. f12, f23, f34, etc.
+			$fi = $fArray[$i] + ($fArray[$i - 1] - $fArray[$i]) / 2;
+			$fi1 = $fArray[$i + 1] + ($fArray[$i] - $fArray[$i + 1]) / 2;
+			$vArray[$i] = number_format(($fi + $fArray[$i]) * $eArray[$i - 1] -> getLength() + ($fArray[$i] + $fi1) * $eArray[$i] -> getLength(), 2);
+		}
+		// calculate v end
+		$fxe = ($fArray[count($fArray) - 2] - $fArray[count($fArray) - 1]) / 2;
+		$ve = ($fxe + $fArray[count($fArray) - 1]) * $eArray[count($eArray) - 1] -> getLength() / 2;
+		$vArray[] = number_format($ve, 2);
+
+		return $vArray;
 	}
 }
 ?>

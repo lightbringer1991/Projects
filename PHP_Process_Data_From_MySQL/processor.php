@@ -8,7 +8,8 @@ $data = $db -> getData(104);
 $beam = new Beam($data, 500);
 $beam -> runAnalysis();
 foreach ($beam -> nodes as $n) {
-	print $n -> x . "\n";
+	// print $n -> x . "\n";
+	print var_dump($n);
 }
 
 ?>

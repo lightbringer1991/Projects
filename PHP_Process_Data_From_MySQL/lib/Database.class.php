@@ -1,11 +1,9 @@
 <?php
 require_once('config.php');
-
 class Database {
 	private $db;
 	private $config;
 	private $data;
-
 	public function __construct($database = 'calc') {
 		$this -> config = array(
 			'host' => DB_HOSTNAME,
@@ -13,7 +11,6 @@ class Database {
 			'password' => DB_PASSWORD,
 			'db' => ($database == 'shared') ? DB_SHARED_NAME : DB_CALC_NAME
 		);
-
 		$this -> db = $this -> initializeConnection();
 		$this -> data = array(
 			'geometry' => array(),
@@ -22,7 +19,6 @@ class Database {
 			'material' => array()
 		);
 	}
-
 	private function initializeConnection() {
 		$conn = new mysqli(
 			$this -> config['host'],
@@ -35,7 +31,6 @@ class Database {
 		}
 		return $conn;
 	}
-
 	public function getData($userId, $clear = false) {
 		if ($clear) {
 			// remove all data with userscalcPK = 0
@@ -48,31 +43,26 @@ class Database {
 		$sql_loading = "SELECT * FROM `ba_loading` WHERE `userscalcPK` = '$userId'";
 		$sql_support = "SELECT * FROM `ba_spt` WHERE `userscalcPK` = '$userId'";
 		$sql_material = "SELECT * FROM `ba_mat` WHERE `userscalcPK` = '$userId'";
-
 		if ($result = $this -> db -> query($sql_geometry)) {
 			while ($row = $result -> fetch_assoc()) {
 				array_push($this -> data['geometry'], $row);
 			}
 		}
-
 		if ($result = $this -> db -> query($sql_loading)) {
 			while ($row = $result -> fetch_assoc()) {
 				array_push($this -> data['loading'], $row);
 			}
 		}
-
 		if ($result = $this -> db -> query($sql_support)) {
 			while ($row = $result -> fetch_assoc()) {
 				array_push($this -> data['support'], $row);
 			}
 		}
-
 		if ($result = $this -> db -> query($sql_material)) {
 			while ($row = $result -> fetch_assoc()) {
 				array_push($this -> data['material'], $row);
 			}
 		}
-
 		return $this -> data;
 	}
 }
