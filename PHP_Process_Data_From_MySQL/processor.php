@@ -7,9 +7,16 @@ $data = $db -> getData(104);
 
 $beam = new Beam($data, 500);
 $beam -> runAnalysis();
-foreach ($beam -> nodes as $n) {
-	// print $n -> x . "\n";
-	print var_dump($n);
-}
+
+// $count = 0;
+// foreach ($beam -> nodes as $n) {
+// 	// print $n -> x . "\n";
+// 	print "\nNode ID: $count\n";
+// 	print $n -> x . "\n";
+// 	print $n -> value . "\n";
+// 	print $n -> elementStart . "\n";
+// 	print $n -> elementEnd . "\n";
+// 	$count++;
+// }
 
 ?>

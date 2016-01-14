@@ -61,8 +61,10 @@ class Beam {
 	private function getHardNodes_loading() {
 		foreach ($this -> rawData['loading'] as $loadingData) {
 			if ($loadingData['geometry'] == 'Distributed') {
-				$startNode = new Node(doubleVal($loadingData['startLocation']), 0, 0);
-				$endNode = new Node(doubleVal($loadingData['endLocation']), 0, 0);
+				$startNode = new Node(doubleval($loadingData['startLocation']), 0, 0);
+				$startNode -> value = doubleval($loadingData['startValue']);
+				$endNode = new Node(doubleval($loadingData['endLocation']), 0, 0);
+				$endNode -> value = doubleval($loadingData['endValue']);
 				$this -> addNode($startNode);
 				$this -> addNode($endNode);
 
@@ -71,10 +73,12 @@ class Beam {
 				// can change it to a longer version with overflow safe later
 				if ($loadingData['startValue'] * $loadingData['endValue'] < 0) {
 					$zeroNode = $this -> calculateZeroPosition($loadingData);
+					$zeroNode -> value = 0;
 					$this -> addNode($zeroNode);
 				}
 			} elseif ($loadingData['geometry'] == 'Point') {
-				$newNode = new Node(doubleVal($loadingData['startLocation']), 0, 0);
+				$newNode = new Node(doubleval($loadingData['startLocation']), 0, 0);
+				$newNode -> value = doubleval($loadingData['startValue']);
 				$this -> addNode($newNode);
 			}
 		}
@@ -122,7 +126,10 @@ class Beam {
 					break;
 				}
 			}
-			$this -> elements[] = new Element($startNode, $endNode, $pk4ba_mat, $pk4ba_g);
+			$e = new Element($startNode, $endNode, $pk4ba_mat, $pk4ba_g);
+			$startNode -> elementStart = $e;
+			$endNode -> elementEnd = $e;
+			// $this -> elements[] = $e;
 		}
 	}
 
@@ -139,9 +146,7 @@ class Beam {
 				}
 			}
 		}
-		// foreach ($this -> nodes as $n) {
-		// 	if ( ($n -> loading -> fz != null) || ($n -> loading -> my != null) ) { print var_dump($n); }
-		// }
+
 		// begin calculating the rest
 		foreach ($this -> rawData['loading'] as $loadingData) {
 			if ( $loadingData['geometry'] == 'Distributed' ) {
@@ -149,14 +154,18 @@ class Beam {
 				$startNode = new Node($loadingData['startLocation'], 0, 0);
 				$endNode = new Node($loadingData['endLocation'], 0, 0);
 				$nodeList = $this -> getAllNodesBetweenNodes($startNode, $endNode);
-				$vList = $this -> calculateLoading($nodeList, $loadingData['startValue'], $loadingData['endValue']);
-				for ($i = 0; $i < count($nodeList); $i++) {
-					if ($loadingData['type'] == 'Force') {
-						$nodeList[$i] -> loading -> fz = $vList[$i];
-					} elseif ($loadingData['type'] == 'Moment') {
-						$nodeList[$i] -> loading -> my = $vList[$i];
-					}
-				}
+				// echo '<pre>';
+				// print_r($nodeList);
+				// echo '</pre>';
+				// $vList = $this -> calculateLoading($nodeList, $loadingData['startValue'], $loadingData['endValue']);
+				$this -> calculateLoading($nodeList, $loadingData['startValue'], $loadingData['endValue']);
+				// for ($i = 0; $i < count($nodeList); $i++) {
+				// 	if ($loadingData['type'] == 'Force') {
+				// 		$nodeList[$i] -> loading -> fz = $vList[$i];
+				// 	} elseif ($loadingData['type'] == 'Moment') {
+				// 		$nodeList[$i] -> loading -> my = $vList[$i];
+				// 	}
+				// }
 			}
 		}
 	}
@@ -190,39 +199,70 @@ class Beam {
 
 	// assuming $nodeList is sorted in ascending order
 	private function calculateLoading($nodeList, $fs, $fe) {
-		$totalLength = new Element($nodeList[0], $nodeList[count($nodeList) - 1], 0, 0);
-		$totalLength = $totalLength -> getLength();
+		// $totalLength = new Element($nodeList[0], $nodeList[count($nodeList) - 1], 0, 0);
+		// $totalLength = $totalLength -> getLength();
+
+		// get distance of each node to its neighbors
+		$eArray = array();
+		$totalLength = 0;
+		for ($i = 1; $i < count($nodeList); $i++) {
+			$eArray[$i - 1] = $nodeList[$i] -> elementEnd -> getLength();
+			$totalLength += $nodeList[$i] -> elementEnd -> getLength();
+			// print $nodeList[$i] -> elementEnd -> startNode -> x . " start\n";
+			// print $nodeList[$i] -> x . " $$$$\n";
+			// print $nodeList[$i] -> elementEnd -> getLength() . "\n";
+		}
+		// print $totalLength . " Total\n";
 
 		// get all f for each node
 		$fArray = array($fs);
-		$eArray = array();
+		print "$fs  fstart\n";
+		print "$fe  fend\n";
+		print "$totalLength Total\n";
+		$elie = $this -> sumArray($eArray, 1, 1);
+		print $elie . "\n";
+		print ($fe - $fs) / $totalLength * $elie . "\n";
+		print $fs + ($fe - $fs) / $totalLength * $elie . "\n";
+		// $eArray = array();
 		for ($i = 1; $i < count($nodeList) - 1; $i++) {
-			// element between end node and node i
-			$elsi = new Element($nodeList[$i], $nodeList[count($nodeList) - 1], 0, 0);
-			$eArray[$i - 1] = $elsi;
-			$fArray[$i] = $fe + ($fs - $fe) / $totalLength * $eArray[$i - 1] -> getLength();
+			// if ($nodeList[$i] -> value != null) { $fArray[$i] = $nodeList[$i] -> value; }
+			$fArray[$i] = $fs + ($fe - $fs) / $totalLength * $this -> sumArray($eArray, $i, count($eArray) - 1);
+
+			// // element between end node and node i
+			// $elsi = new Element($nodeList[$i], $nodeList[count($nodeList) - 1], 0, 0);
+			// $eArray[$i - 1] = $elsi;
+			// $fArray[$i] = $fe + ($fs - $fe) / $totalLength * $eArray[$i - 1] -> getLength();				
 		}
 		// generate last element
 		$eArray[] = new Element($nodeList[count($nodeList) - 2], $nodeList[count($nodeList) - 1], 0, 0);
 		$fArray[] = $fe;
+		print var_dump($fArray);
+		
+		// // calculate all v for each node
+		// // calculate start node value
+		// $f12 = ($fArray[0] - $fArray[1]) / 2;
+		// $vs = ($fArray[0] + $f12) * $eArray[0] -> getLength() / 2;
+		// $vArray = array(number_format($vs, 2));
+		// for ($i = 1; $i < count($nodeList) - 1; $i++) {
+		// 	// calculate f(i, i+1), e.g. f12, f23, f34, etc.
+		// 	$fi = $fArray[$i] + ($fArray[$i - 1] - $fArray[$i]) / 2;
+		// 	$fi1 = $fArray[$i + 1] + ($fArray[$i] - $fArray[$i + 1]) / 2;
+		// 	$vArray[$i] = number_format(($fi + $fArray[$i]) * $eArray[$i - 1] -> getLength() + ($fArray[$i] + $fi1) * $eArray[$i] -> getLength(), 2);
+		// }
+		// // calculate v end
+		// $fxe = ($fArray[count($fArray) - 2] - $fArray[count($fArray) - 1]) / 2;
+		// $ve = ($fxe + $fArray[count($fArray) - 1]) * $eArray[count($eArray) - 1] -> getLength() / 2;
+		// $vArray[] = number_format($ve, 2);
 
-		// calculate all v for each node
-		// calculate start node value
-		$f12 = ($fArray[0] - $fArray[1]) / 2;
-		$vs = ($fArray[0] + $f12) * $eArray[0] -> getLength() / 2;
-		$vArray = array(number_format($vs, 2));
-		for ($i = 1; $i < count($nodeList) - 1; $i++) {
-			// calculate f(i, i+1), e.g. f12, f23, f34, etc.
-			$fi = $fArray[$i] + ($fArray[$i - 1] - $fArray[$i]) / 2;
-			$fi1 = $fArray[$i + 1] + ($fArray[$i] - $fArray[$i + 1]) / 2;
-			$vArray[$i] = number_format(($fi + $fArray[$i]) * $eArray[$i - 1] -> getLength() + ($fArray[$i] + $fi1) * $eArray[$i] -> getLength(), 2);
+		// return $vArray;
+	}
+
+	private function sumArray($arr, $start, $end) {
+		$total = 0;
+		for ($i = $start; $i <= $end; $i++) {
+			$total += $arr[$i];
 		}
-		// calculate v end
-		$fxe = ($fArray[count($fArray) - 2] - $fArray[count($fArray) - 1]) / 2;
-		$ve = ($fxe + $fArray[count($fArray) - 1]) * $eArray[count($eArray) - 1] -> getLength() / 2;
-		$vArray[] = number_format($ve, 2);
-
-		return $vArray;
+		return $total;
 	}
 }
 ?>

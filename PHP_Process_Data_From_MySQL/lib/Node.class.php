@@ -1,4 +1,11 @@
 <?php
+/*
+	Node class
+		($x, $y, $z): contains coordinate of the node
+		$loading: contains the force/moment data at that node
+		($elementStart, $elementEnd) contains the right-left hand side elements
+		$value: contains the pre-defined value, if applicable (only hard nodes)
+*/
 require_once "Loading.class.php";
 
 class Node {
@@ -6,6 +13,9 @@ class Node {
 	public $y;
 	public $z;
 	public $loading;
+	public $elementStart;		// contains the Element object of which this node is the start node
+	public $elementEnd; 		// contains the Element obj of which this node is the end node
+	public $value;				// value of the node (only applies for hard nodes that has force applies to it)
 
 	// acceptable distance between Nodes to be accepted as the same Node
 	public static $delta = 0.0000001;
@@ -15,6 +25,9 @@ class Node {
 		$this -> y = $y;
 		$this -> z = $z;
 		$this -> loading = new Loading();
+		$this -> value = null;
+		$this -> elementStart = null;
+		$this -> elementEnd = null;
 	}
 
 	// check if a node is between 2 given nodes

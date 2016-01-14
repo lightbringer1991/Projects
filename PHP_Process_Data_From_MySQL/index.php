@@ -75,13 +75,13 @@ for ($i = 0; $i < count($beam -> nodes); $i++) {
 		</thead>
 		<tbody>
 <?php
-for ($i = 0; $i < count($beam -> elements); $i++) {
+for ($i = 0; $i < count($beam -> nodes) - 1; $i++) {
 	echo "	<tr>
-				<td>$i</td>
-				<td>" . array_search($beam -> elements[$i] -> startNode, $beam -> nodes) . "</td>
-				<td>" . array_search($beam -> elements[$i] -> endNode, $beam -> nodes) . "</td>
-				<td>" . $beam -> elements[$i] -> PK4ba_mat . "</td>
-				<td>" . $beam -> elements[$i] -> PK4ba_g . "</td>
+				<td>" . $i . "</td>
+				<td>" . array_search($beam -> nodes[$i] -> elementStart -> startNode, $beam -> nodes) . "</td>
+				<td>" . array_search($beam -> nodes[$i] -> elementStart -> endNode, $beam -> nodes) . "</td>
+				<td>" . $beam -> nodes[$i] -> elementStart -> PK4ba_mat . "</td>
+				<td>" . $beam -> nodes[$i] -> elementStart -> PK4ba_g . "</td>
 			</tr>";
 }
 ?>

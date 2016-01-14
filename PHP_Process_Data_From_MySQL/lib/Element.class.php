@@ -18,7 +18,11 @@ class Element {
 	}
 
 	public function getLength() {
-		return $this -> endNode -> x - $this -> startNode -> x;
+		return abs($this -> endNode -> x - $this -> startNode -> x);
+	}
+
+	public function __toString() {
+		return $this -> startNode -> x . ", " . $this -> endNode -> x . ", " . $this -> PK4ba_mat . ", " . $this -> PK4ba_g;
 	}
 }
 ?>
