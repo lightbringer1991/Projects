@@ -216,6 +216,9 @@ class Beam {
 		}
 		// generate last element
 		$fArray[] = $fe;
+		print var_dump($fArray);
+		// print var_dump($eArray);
+
 
 		// check if there is a node with 0 value
 		// if there is, split the array into 2, recursively run calculateLoading() again with 2 sections
@@ -239,8 +242,7 @@ class Beam {
 			}
 			$vArray1 = $this -> calculateLoading($arr1, $fs, 0);
 			$vArray2 = $this -> calculateLoading($arr2, 0, $fe);
-			print var_dump($vArray1);
-			print var_dump($vArray2);
+
 			// unshift the first index of $vArray2, as it will be the zero node, add to $arr1
 			$vArray2zero = array_shift($vArray2);
 			$vArray1[count($vArray1) - 1] += $vArray2zero;
@@ -254,7 +256,7 @@ class Beam {
 		// generate V at all nodes except the last node
 		for ($i = 1; $i < count($nodeList) - 1; $i++) {
 			$A = $fArray[$i] * $eArray[$i - 1] / 2;
-			$B = ($fArray[$i - 1] - $fArray[$i]) * $eArray[$i - 1] / 3;
+			$B = ($fArray[$i - 1] - $fArray[$i]) * $eArray[$i - 1] / 2;
 			$C = $fArray[$i + 1] * $eArray[$i] / 2;
 			$D = ($fArray[$i] - $fArray[$i + 1]) * $eArray[$i] / 2;
 
