@@ -1,0 +1,140 @@
+<?php
+require "PolynomialEquation.class.php";
+require "PolynomialTerm.class.php";
+require "Utilities.class.php";
+
+class FEA {
+	// data from Database::getData() function
+	private $rawData;
+	public $mesh;
+
+	public function __construct($data, $el_max) {
+		$this -> rawData = $data;
+		$this -> mesh = new Mesh_1D($data, $el_max);
+		$this -> mesh -> run();
+	}
+
+	// F = array($totalNodes * 6) = {fx_1, fy_1, fz_1, mx_1, my_1, mz_1, fx_2, fy_2, ...}
+	public function generateF() {
+		$output = array();
+		foreach ($this -> mesh -> nodes as $n) {
+			$output = array_merge( $output, $n -> loading -> exportToArray() );
+		}
+		return $output;
+	}
+
+	// generate $k_e for an element
+	public function generateKE_1($elementObj) {
+		$E = $elementObj -> PK4ba_mat;
+		$I = $elementObj -> PK4ba_g;
+		$EI = $E * $I;
+		$le = $elementObj -> getLength();
+		$v1 = $EI * 12 / pow($le, 3);
+		$v2 = $EI * 6 / pow($le, 2);
+		$v3 = $EI * 4 / $le;
+		$v4 = pow($EI, 2) / $le;
+
+		$k_e = array(
+			array($v1, $v2, -$v1, $v2),
+			array($v2, $v3, -$v2, $v4),
+			array(-$v1, -$v2, $v1, -$v2),
+			array($v2, $v4, -$v2, $v3)
+		);
+		return $k_e;
+	}
+
+	// generate $k_e for an element with polynomial calculation
+	public function generateKE_2($elementObj) {
+		$k_e = array();
+		$length = $elementObj -> getLength();
+
+		$N = array(
+			new \Polynomial\Equation(array( 2/pow($length, 3), -3/pow($length, 2), 0, 1)),
+			new \Polynomial\Equation(array( 1/pow($length, 2), -2/$length 	   	 , 1, 0)),
+			new \Polynomial\Equation(array(-2/pow($length, 3),  3/pow($length, 2), 0, 0)),
+			new \Polynomial\Equation(array( 1/pow($length, 2), -1/$length        , 0, 0))
+		);
+		$N2 = array();
+		for($i = 0; $i < count($N); $i++) {
+			$N2[$i] = $N[$i]->getDerivative(2);
+		}
+
+		$t = $length * ($i - 1);
+		$eq = new \Polynomial\Equation(array(1, 2 * $t, $t * $t + 1));
+		for ($i = 0; $i < count($N2); $i++) {
+			for ($j = 0; $j < count($N2); $j++) {
+				$equation = $N2[$i];
+				$equation = $equation -> multiplyBy($eq);
+				$equation = $equation -> multiplyBy($N2[$j]);
+				$equation = $equation -> getIntegral();
+				$k_e[$i][$j] = $equation -> evaluateFor($length) - $equation -> evaluateFor(0);
+			}
+		}
+
+		return $k_e;
+	}
+
+	public function assembleKMatrix() {
+		// total of degree of freedoms
+		$ndof = (count($this -> mesh -> connections) + 1) * 2;
+
+		$K = Utilities::createArray($ndof, $ndof);
+
+		for ($i = 0; $i < count($this -> mesh -> connections); $i++) {
+			$k_e = $this -> generateKE_2($this -> mesh -> connections[$i]);
+			for ($row = 0; $row < 4; $row++) {
+				$row_g = $i * 2 + $row;
+				for ($col = 0; $col < 4; $col++) {
+					$col_g = $i * 2 + $col;
+					$K[$row_g][$col_g] += $k_e[$row][$col];
+				}
+			}
+		}
+		return $K;
+	}
+
+	// perform FEA analysis
+	public function runAnalysis() {
+		$ndof = (count($this -> mesh -> connections) + 1) * 2;
+		$xv = array(0, $ndof - 2);
+		$K = $this -> assembleKMatrix();
+		$F = $this -> generateF();
+
+		// calculations
+		$K = Utilities::removeRow($K, $xv);
+		print "step1<br />";
+		$K = Utilities::removeCol($K, $xv);
+		print "step2<br />";
+		$F = Utilities::removeRow($F, $xv);
+		print "step3<br />";
+		$w0 = Utilities::LUPsolve($K, $F);
+		print "step4<br />";
+
+		$w1 = array_fill(0, $ndof);
+		$xv1 = array_fill(0, $ndof);
+		for ($i = 0; $i < $ndof; $i++) { $xv1[$i] = $i; }
+		$xv1 = Utilities::removeRow($xv1, $xv);
+		$w1 = Utilities::replaceVec($w1, $xv1, $w0);
+
+		$c = 99;
+		$w4 = array();
+		for ($i = 0; $i <= $c; $i++)  {
+			$xi = $i * $L / $c;
+			$w4[$i] = 0.01 * pow($xi, 5) - (1 / 30) * pow($xi, 3) + (7 / 300) * $xi;
+		}
+
+		// display zone
+		// echo "\nK = \n\n";
+		// Utilities::showArray($K, count($K), count($K[0]));
+
+		// echo "\nF = \n\n";
+		// Utilities::showArray($F, count($F));
+
+		echo "\nw1 = \n\n";
+		Utilities::showArray($w1, $ndof, 1, "<br />");
+
+		echo "\nw4 = \n\n";
+		Utilities::showArray($w4, $c+1, 1, "<br />");
+	}
+}
+?>

@@ -1,0 +1,10 @@
+move $Beam->generateLoadings to $Loading
+move $Beam->calculateLoading to $Loading->
+
+rename $Beam->$Mesh
+
+rename $Element->$Connect
+
+$elements --> $connections
+
+$runAnalysis() --> $run() 

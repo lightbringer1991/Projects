@@ -16,16 +16,50 @@ class Loading {
 		$this -> mz = $mz;
 	}
 
-	public function exportToArray() {
-		$arr = array($this -> fx, $this -> fy, $this -> fz, $this -> mx, $this -> my, $this -> mz);
-		for ($i = 0; $i < count($arr); $i++) {
-			if ($arr[$i] == null) { $arr[$i] = 0; }
+
+	// only invoke this function AFTER all nodes are generated
+	private function generateLoadings() {
+		// get all predefined loading data
+		foreach ($this -> nodes as $n) {
+			foreach ($this -> rawData['loading'] as $loadingData) {
+				if ( ($loadingData['geometry'] == 'Point') && ($loadingData['type'] == 'Force') && ($loadingData['startLocation'] == $n -> x) ) {
+					$n -> loading -> fz = $loadingData['startValue'];
+				}
+				if ( ($loadingData['geometry'] == 'Point') && ($loadingData['type'] == 'Moment') && ($loadingData['startLocation'] == $n -> x) ) {
+					$n -> loading -> my = $loadingData['startValue'];
+				}
+			}
 		}
-		return $arr;
-	}
+
+		// begin calculating the rest
+		foreach ($this -> rawData['loading'] as $loadingData) {
+			if ( $loadingData['geometry'] == 'Distributed' ) {
+				// find all nodes within this space
+				$startNode = new Node($loadingData['startLocation'], 0, 0);
+				$endNode = new Node($loadingData['endLocation'], 0, 0);
+				$nodeList = $this -> getAllNodesBetweenNodes($startNode, $endNode);
+
+				$vList = $this -> calculateLoading($nodeList, $loadingData['startValue'], $loadingData['endValue']);
+				for ($i = 0; $i < count($nodeList); $i++) {
+					if ($loadingData['type'] == 'Force') {
+						if ($nodeList[$i] -> loading -> fz == null) {
+							$nodeList[$i] -> loading -> fz = 0;
+						}
+						$nodeList[$i] -> loading -> fz += $vList[$i];
+					} elseif ($loadingData['type'] == 'Moment') {
+						if ($nodeList[$i] -> loading -> my == null) {
+							$nodeList[$i] -> loading -> my = 0;
+						}
+						$nodeList[$i] -> loading -> my += $vList[$i];
+					}
+				}
+			}
+		}
+	}	
+
 
 	// assuming $nodeList is sorted in ascending order
-	public static function calculateLoading($nodeList, $fs, $fe) {
+	private function calculateLoading($nodeList, $fs, $fe) {
 		// get distance of each node to its neighbors
 		$eArray = array();
 		$totalLength = 0;
@@ -37,13 +71,10 @@ class Loading {
 		// get all f for each node
 		$fArray = array($fs);
 		for ($i = 1; $i < count($nodeList) - 1; $i++) {
-			$fArray[$i] = $fs + ($fe - $fs) / $totalLength * self::sumArray($eArray, 0, $i - 1);
+			$fArray[$i] = $fs + ($fe - $fs) / $totalLength * $this -> sumArray($eArray, 0, $i - 1);
 		}
 		// generate last element
 		$fArray[] = $fe;
-		// print var_dump($fArray);
-		// print var_dump($eArray);
-
 
 		// check if there is a node with 0 value
 		// if there is, split the array into 2, recursively run calculateLoading() again with 2 sections
@@ -55,6 +86,7 @@ class Loading {
 			}
 		}
 		if ( ($zeroIndex != -1) && ($zeroIndex != 0) && ($zeroIndex != count($nodeList) - 1) ) {
+			print $zeroIndex;
 			$arr1 = array();
 			$arr2 = array($nodeList[$zeroIndex]);
 			for ($i = 0; $i < count($nodeList); $i++) {
@@ -64,9 +96,8 @@ class Loading {
 					array_push($arr2, $nodeList[$i]);
 				}
 			}
-			$vArray1 = self::calculateLoading($arr1, $fs, 0);
-			$vArray2 = self::calculateLoading($arr2, 0, $fe);
-
+			$vArray1 = $this -> calculateLoading($arr1, $fs, 0);
+			$vArray2 = $this -> calculateLoading($arr2, 0, $fe);
 			// unshift the first index of $vArray2, as it will be the zero node, add to $arr1
 			$vArray2zero = array_shift($vArray2);
 			$vArray1[count($vArray1) - 1] += $vArray2zero;
@@ -93,14 +124,8 @@ class Loading {
 		array_push($vArray, $ve);
 		
 		return $vArray;
-	}
+	}	
 
-	private static function sumArray($arr, $start, $end) {
-		$total = 0;
-		for ($i = $start; $i <= $end; $i++) {
-			$total += $arr[$i];
-		}
-		return $total;
-	}
+	$this -> generateLoadings();
 }
 ?>

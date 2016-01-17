@@ -2,18 +2,33 @@
 error_reporting(E_ALL);
 
 require_once 'lib/Database.class.php';
-require_once 'lib/Mesh_1D.class.php';
+require_once 'lib/Beam.class.php';
+
+require_once 'FEA.class.php';
 
 // predefined variables
 $userscalcPK = 104;
-$el_max = 500;
 
 // data gathering and calculation
 $db = new Database();
 $data = $db -> getData($userscalcPK);
 
-$beam = new Mesh_1D($data, $el_max);
-$beam -> run();
+// to get the connectivitiy of nodes
+$el_max = 500;
+$mesh = new Mesh_1D($data, $el_max);
+
+// to be done later
+$etype = 'beam23';
+$beam = new Beam($mesh, $etype);
+
+//
+
+$loading = new Loading($mesh);
+
+$model = new Model($beam, $loading)
+
+FEA($model);
+
 ?>
 
 <html>
@@ -39,10 +54,10 @@ $beam -> run();
 	<table class='table table-bordered table-striped'>
 		<thead>
 		<tr>
-			<th class='col-sm-3 col-md-3 col-lg-3'>Node ID</th>
-			<th class='col-sm-3 col-md-3 col-lg-3'>X</th>
-			<th class='col-sm-3 col-md-3 col-lg-3'>Y</th>
-			<th class='col-sm-3 col-md-3 col-lg-3'>Z</th>
+			<th class='col-sm-1 col-md-1 col-lg-1'>Node ID</th>
+			<th class='col-sm-2 col-md-2 col-lg-2'>X</th>
+			<th class='col-sm-2 col-md-2 col-lg-2'>Y</th>
+			<th class='col-sm-2 col-md-2 col-lg-2'>Z</th>
 		</tr>
 		</thead>
 		<tbody>

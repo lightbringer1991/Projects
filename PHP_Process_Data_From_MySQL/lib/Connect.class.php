@@ -1,5 +1,5 @@
 <?php
-class Element {
+class Connect {
 	public $startNode;
 	public $endNode;
 	public $PK4ba_mat;
