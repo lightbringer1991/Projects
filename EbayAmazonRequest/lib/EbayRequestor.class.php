@@ -5,6 +5,7 @@ class EbayRequestor {
 	private $keyword;
 	private $data;
 	private static $appID = 'Solecomp-c20b-4fa6-a1da-0ddfc9cbd519';
+	private static $trackingID = '5337802388';
 
 	public function __construct($keyword) {
 		$this -> keyword = $keyword;
@@ -25,22 +26,46 @@ class EbayRequestor {
 							</itemFilter>
 							<affiliate>
 								<networkId>9</networkId>
-								<trackingId>5337802388</trackingId>
+								<trackingId>" . self::$trackingID . "</trackingId>
 							</affiliate>
 							<sortOrder>BestMatch</sortOrder>
 							<outputSelector>SellerInfo</outputSelector>
+							<outputSelector>PictureURLLarge</outputSelector>
 						</findItemsAdvancedRequest>";
 		$header = array(
-			'X-EBAY-SOA-OPERATION-NAME: findItemsByKeywords',
-			'X-EBAY-SOA-SERVICE-VERSION: 1.3.0',
+			'X-EBAY-SOA-OPERATION-NAME: findItemsAdvanced',
+			'X-EBAY-SOA-SERVICE-NAME: FindingService',
+			'X-EBAY-SOA-SERVICE-VERSION: 1.13.0',
 			'X-EBAY-SOA-REQUEST-DATA-FORMAT: XML',
 			'X-EBAY-SOA-GLOBAL-ID: EBAY-US',
+			'REST-PAYLOAD: 1',
 			'X-EBAY-SOA-SECURITY-APPNAME: ' . self::$appID,
 			'Content-Type: text/xml;charset=utf-8'
 		);
 		$this -> data = self::executeCurl(self::$serviceAPIURL, $header, $xmlRequest);
 		error_log(gmdate('d/m/Y H:i:s') . " - Ebay data retrieved\r\n", 3, 'error_log.txt');
 		return $this -> data;
+	}
+
+	public static function getItemDetailsURL($itemID) {
+		$xmlRequest = "<?xml version='1.0' encoding='utf-8'?>
+						<GetSingleItemRequest xmlns='urn:ebay:apis:eBLBaseComponents'>
+							<ItemID>$itemID</ItemID>
+						</GetSingleItemRequest>";
+		$header = array(
+			'X-EBAY-API-APP-ID: ' . self::$appID,
+			'X-EBAY-API-VERSION:949',
+			'X-EBAY-API-CALL-NAME: GetSingleItem',
+			'X-EBAY-SOA-GLOBAL-ID: EBAY-US',
+			'X-EBAY-API-REQUEST-ENCODING:XML',
+			'X-EBAY-API-TRACKING-ID:' . self::$trackingID,
+			'X-EBAY-API-TRACKING-PARTNER-CODE: 9',
+			'Content-Type: text/xml;charset=utf-8'
+		);
+		$itemData = self::executeCurl(self::$shoppingAPIURL, $header, $xmlRequest);
+		// echo $itemData;
+		$simpleXML = new SimpleXMLElement($itemData);
+		return $simpleXML -> Item -> ViewItemURLForNaturalSearch -> __toString();
 	}
 
 	// return an array of necessary data, xmlResponse can be manually put in
@@ -57,12 +82,17 @@ class EbayRequestor {
 				if (isset($i -> discountPriceInfo)) {
 					$listPrice = $i -> discountPriceInfo -> originalRetailPrice -> __toString();
 				}
-
-
+				// get display picture
+				$picture = 'images/ebay-noimage.gif';
+				if (isset($i -> pictureURLLarge)) {
+					$picture = $i -> pictureURLLarge -> __toString();
+				} elseif (isset($i -> galleryURL)) {
+					$picture = $i -> galleryURL -> __toString();
+				}
 
 				$priceAttributes = $i -> sellingStatus -> currentPrice -> attributes();
 				$data = array(
-					'picture' => $i -> galleryURL -> __toString(),
+					'picture' => $picture,
 					'url' => $i -> viewItemURL -> __toString(),
 					'title' => $i -> title -> __toString(),
 					'price' => $i -> sellingStatus -> currentPrice -> __toString(),
@@ -71,11 +101,10 @@ class EbayRequestor {
 					'feedback' => $i -> sellerInfo -> positiveFeedbackPercent -> __toString(),
 					'shippingCost' => $i -> shippingInfo -> shippingServiceCost -> __toString()
 				);
-				if ($data['picture'] == '') { $data['picture'] = 'images/ebay-noimage.gif'; }
 
 				// calculate percentage saved
 				$data['percentagesaved'] = number_format(($data['listprice'] - $data['price']) / $data['listprice'] * 100, 2);
-
+				$data['logo'] = 'images/ebay.jpg';
 				$output[$i -> itemId -> __toString()] = $data;
 			}
 			
@@ -121,11 +150,11 @@ class EbayRequestor {
 
 	// escape special character to fit xml format
 	private function escapeStringToXMLformat($str) {
+		$str = str_replace('&', "&amp;", $str);
 		$str = str_replace('"', "&quot;", $str);
 		$str = str_replace("'", "&apos;", $str);
 		$str = str_replace('<', "&lt;", $str);
 		$str = str_replace('>', "&gt;", $str);
-		$str = str_replace('&', "&amp;", $str);
 		return $str;
 	}
 }

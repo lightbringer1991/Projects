@@ -4,6 +4,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous" />
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<script src='js/typeahead.bundle.min.js'></script>
 </head>
 <body>
 <style type='text/css'>
@@ -12,6 +13,63 @@
 	position: absolute;
 	top: 50%;
 	left: 50%;
+}
+
+.product-image {
+	height: auto;
+}
+
+/* CSS code for typeahead, will need to be moved to a separate CSS later */
+.twitter-typeahead {
+	display: inline !important;
+}
+
+.tt-query, /* UPDATE: newer versions use tt-input instead of tt-query */
+.tt-hint {
+    width: 396px;
+    height: 30px;
+    padding: 8px 12px;
+    font-size: 24px;
+    line-height: 30px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+}
+
+.tt-query { /* UPDATE: newer versions use tt-input instead of tt-query */
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+.tt-hint {
+    color: #999;
+}
+
+.tt-menu { /* UPDATE: newer versions use tt-menu instead of tt-dropdown-menu */
+	width: inherit;
+	position: relative !important;
+	margin-top: 37px;
+	padding: 8px 0;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	border-radius: 8px;
+	box-shadow: 0 5px 10px rgba(0,0,0,.2);
+}
+
+.tt-suggestion {
+    padding: 3px 20px;
+    font-size: 18px;
+    line-height: 24px;
+}
+
+.tt-suggestion.tt-is-under-cursor { /* UPDATE: newer versions use .tt-suggestion.tt-cursor */
+    color: #fff;
+    background-color: #0097cf;
+
+}
+
+.tt-suggestion p {
+    margin: 0;
 }
 </style>
 
@@ -49,6 +107,52 @@ function ajaxCall(keyword, site) {
 	});
 }
 
+// sort a table by a columnIndex (start from 1), isASC = false => sort descending
+function sortByColumn(tableObj, columnIndex, isASC) {
+	var rows = tableObj.find('tr');
+	rows.sort(function(a, b) {
+		var keyA = $(a).find('td:nth-child(' + columnIndex + ')').text();
+		var keyB = $(b).find('td:nth-child(' + columnIndex + ')').text();
+
+		// trim percentage off and list price
+		var resA = keyA.split("(");
+		var resB = keyB.split("(");
+		keyA = parseFloat(resA[0].replace(/,/g, ''));
+		keyB = parseFloat(resB[0].replace(/,/g, ''));
+
+		// compare
+		if (isASC) {
+			return keyA - keyB;
+		} else {
+			return keyB - keyA;
+		}
+	});
+	console.log(rows);
+
+	// append back to table
+	tableObj.empty();
+	rows.each(function(index, r) {
+		tableObj.append(r);
+	});
+}
+
+var suggestions = new Bloodhound({
+	datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+	queryTokenizer: Bloodhound.tokenizers.whitespace,
+	remote: {
+		url: 'searchEngine.php',
+		prepare: function(query, settings) {
+			settings.type = 'POST';
+			settings.global = false;
+			settings.data = { 'keyword': query, 'site': 'suggestion' };
+			return settings;
+		}
+	},
+	transform: function(response) {
+		return JSON.parse(response);
+	}
+});
+
 $(document).ready(function() {
 $("#container-result").hide();
 $('.loading').hide();
@@ -62,6 +166,7 @@ $('#form-keywordSearch').on('submit', function(event) {
 	}
 	$.when( ajaxCall(keyword, 'start'), ajaxCall(keyword, 'ebay'), ajaxCall(keyword, 'amazon'), ajaxCall(keyword, 'end') ).done(function(a1, a2, a3, a4) {
 		$("#container-result [data-role='content']").html(a1[0] + a2[0] + a3[0] + a4[0]);
+		sortByColumn($("#container-result table").find('tbody'), 4, true);
 		$("#container-result").show();
 	});
 });
@@ -77,6 +182,30 @@ $(document).ajaxStop(function()
 
 $(document).on('click', "a[data-role='url_amazonReviews']", function() {
 	$("#modal-amazonReviews").find('.modal-body iframe').attr('src', $(this).data('href'));
+});
+
+$(document).on('click', "a[data-role='moreDetails']", function(event) {
+	var aObj = $(event.currentTarget);
+	var itemID = aObj.closest('tr').attr('id');
+	event.preventDefault();
+	$.ajax({
+		type: 'POST',
+		url: 'searchEngine.php',
+		data: { 'keyword': '', 'site': 'details', 'store': aObj.data('store'), 'id': itemID },
+		async: false,
+		success: function(url) {
+			var win = window.open(url, '_blank');
+			if (win) {
+				// focus on the new tab
+				win.focus();
+			}
+		}
+	});
+});
+
+$("input[name='keyword']").typeahead(null, {
+	// display: 'value',
+	source: suggestions
 });
 
 });

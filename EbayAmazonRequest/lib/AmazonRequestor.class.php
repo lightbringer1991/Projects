@@ -3,11 +3,11 @@ class AmazonRequestor {
 	private $keyword;
 	private $data;
 
-	private $_secretKey = 'ye0kqRD7ZQKoq9ULaYi696cgBgXKz2LrsDpyPS1R';
-	private $_associateTag = 'productsearch09-20';
-	private $_accessKeyID = 'AKIAJQVSAMHIUG7LHPTQ';
-	private $endpoint = "webservices.amazon.com";
-	private $uri = "/onca/xml";
+	private static $_secretKey = 'ye0kqRD7ZQKoq9ULaYi696cgBgXKz2LrsDpyPS1R';
+	private static $_associateTag = 'productsearch09-20';
+	private static $_accessKeyID = 'AKIAJQVSAMHIUG7LHPTQ';
+	private static $endpoint = "webservices.amazon.com";
+	private static $uri = "/onca/xml";
 
 	public function __construct($keyword) {
 		$this -> keyword = $keyword;
@@ -17,8 +17,8 @@ class AmazonRequestor {
 		$params = array(
 			"Service" => "AWSECommerceService",
 			"Operation" => "ItemSearch",
-			"AWSAccessKeyId" => $this -> _accessKeyID,
-			"AssociateTag" => $this -> _associateTag,
+			"AWSAccessKeyId" => self::$_accessKeyID,
+			"AssociateTag" => self::$_associateTag,
 			"SearchIndex" => "All",
 			"Keywords" => $this -> keyword,
 			"ResponseGroup" => "Images,ItemAttributes,Offers,Reviews",
@@ -29,7 +29,7 @@ class AmazonRequestor {
 			// "MinPercentageOff" => 0
 		);
 
-		$requestURL = $this -> generateRequestURL($params);
+		$requestURL = self::generateRequestURL($params);
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL,$requestURL);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -38,6 +38,33 @@ class AmazonRequestor {
 		$this -> data = curl_exec($ch);
 		error_log(gmdate('d/m/Y H:i:s') . " - Amazon data retrieved\r\n", 3, 'error_log.txt');
 		return $this -> data;
+	}
+
+	public static function getItemDetailsURL($itemID) {
+		$params = array(
+			"Service" => "AWSECommerceService",
+			"Operation" => "ItemLookup",
+			"AWSAccessKeyId" => self::$_accessKeyID,
+			"AssociateTag" => self::$_associateTag,
+			"ItemId" => $itemID,
+			"Timestamp" => gmdate('Y-m-d\TH:i:s\Z')
+		);
+
+		$requestURL = self::generateRequestURL($params);
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL,$requestURL);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+		$xmlData = curl_exec($ch);
+
+		// get technical details URL
+		$simpleXML = new SimpleXMLElement($xmlData);
+		foreach ($simpleXML -> Items -> Item -> ItemLinks -> ItemLink as $il) {
+			if ($il -> Description -> __toString() == 'Technical Details') {
+				return $il -> URL -> __toString();
+			}
+		}
+		return '';
 	}
 
 	// return an array of necessary data, xmlResponse can be manually put in
@@ -63,26 +90,17 @@ class AmazonRequestor {
 				}
 
 				$data = array();
-				if (!isset($i -> Offers -> TotalOffers) || ($i -> Offers -> TotalOffers -> __toString() == '0')) {
-					$data = array(
-						'picture' => $picture,
-						'url' => $i -> DetailPageURL -> __toString(),
-						'title' => $i -> ItemAttributes -> Title -> __toString(),
-						'price' => 0,
-						'listprice' => 0,
-						'percentagesaved' => 0,
-						'currencyId' => 'N/A',
-						'shippingCost' => 'N/A'						
-					);
+				if ( !isset($i -> OfferSummary -> TotalNew) || (intval($i -> OfferSummary -> TotalNew -> __toString()) == 0) ) {
+					continue;
 				} else {
 					// get listing price
-					$listPrice = $i -> Offers -> Offer -> OfferListing -> Price -> FormattedPrice -> __toString();
+					$listPrice = $i -> OfferSummary -> LowestNewPrice -> FormattedPrice -> __toString();
 					if (isset($i -> ItemAttributes -> ListPrice) && ($i -> ItemAttributes -> ListPrice -> FormattedPrice -> __toString() != '0') ) {
 						$listPrice = $i -> ItemAttributes -> ListPrice -> FormattedPrice -> __toString();
 					}
 
 					// get price
-					$price = $i -> Offers -> Offer -> OfferListing -> Price -> FormattedPrice -> __toString();
+					$price = $i -> OfferSummary -> LowestNewPrice -> FormattedPrice -> __toString();
 					if (isset($i -> Offers -> Offer -> OfferListing -> SalePrice)) {
 						$price = $i -> Offers -> Offer -> OfferListing -> SalePrice -> FormattedPrice -> __toString();
 					}
@@ -91,18 +109,19 @@ class AmazonRequestor {
 						'picture' => $picture,
 						'url' => $i -> DetailPageURL -> __toString(),
 						'title' => $i -> ItemAttributes -> Title -> __toString(),
-						'price' => $price,
-						'listprice' => $listPrice,
+						'price' => ltrim($price, "$"),
+						'listprice' => ltrim($listPrice, "$"),
 						'percentagesaved' => 0,
-						'currencyId' => $i -> Offers -> Offer -> OfferListing -> Price -> CurrencyCode -> __toString(),
+						'currencyId' => $i -> OfferSummary -> LowestNewPrice -> CurrencyCode -> __toString(),
 						'shippingCost' => 'N/A'
 					);
 
 					if (isset($i -> Offers -> Offer -> OfferListing -> PercentageSaved)) {
-						$data['percentagesaved'] = $i -> Offers -> Offer -> OfferListing -> PercentageSaved -> __toString();
+						$data['percentagesaved'] = ltrim($i -> Offers -> Offer -> OfferListing -> PercentageSaved -> __toString(), "$");
 					}
 				}
 				$data['feedback'] = "<a data-role='url_amazonReviews' data-toggle='modal' data-target='#modal-amazonReviews' data-href='" . $i -> CustomerReviews -> IFrameURL -> __toString() . "'>Review</a>";
+				$data['logo'] = 'images/amazon.png';
 				$output[$i -> ASIN -> __toString()] = $data;
 			}
 		} catch(Exception $e) {
@@ -111,7 +130,7 @@ class AmazonRequestor {
 		return $output;
 	}
 
-	private function generateRequestURL($params) {
+	private static function generateRequestURL($params) {
 		// Sort the parameters by key
 		ksort($params);
 		$pairs = array();
@@ -124,13 +143,13 @@ class AmazonRequestor {
 		$canonical_query_string = join("&", $pairs);
 
 		// Generate the string to be signed
-		$string_to_sign = "GET\n" . $this -> endpoint . "\n" . $this -> uri . "\n" . $canonical_query_string;
+		$string_to_sign = "GET\n" . self::$endpoint . "\n" . self::$uri . "\n" . $canonical_query_string;
 
 		// Generate the signature required by the Product Advertising API
-		$signature = base64_encode(hash_hmac("sha256", $string_to_sign, $this -> _secretKey, true));
+		$signature = base64_encode(hash_hmac("sha256", $string_to_sign, self::$_secretKey, true));
 
 		// Generate the signed URL
-		$request_url = 'http://' . $this -> endpoint . $this -> uri . '?' . $canonical_query_string . '&Signature='.rawurlencode($signature);
+		$request_url = 'http://' . self::$endpoint . self::$uri . '?' . $canonical_query_string . '&Signature='.rawurlencode($signature);
 
 		return $request_url;
 	}
