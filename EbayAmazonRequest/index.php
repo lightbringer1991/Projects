@@ -107,18 +107,28 @@ function ajaxCall(keyword, site) {
 	});
 }
 
+function getPrice(columnText) {
+	var tokens = columnText.split("(");
+	var data = 0;
+	// handle Too low to display
+	// find (was xxx) section of the price column and use it to compare
+	if (tokens[0] == 'Too low to display') {
+		if ( (typeof tokens[1] !== 'undefined') && (tokens[1].indexOf("was") > -1) ) {
+			data = tokens[1];
+			data = data.substring(4, data.length - 1);
+		}
+	} else {
+		data = tokens[0];
+	}
+	return parseFloat(data.replace(/,/g, ''));
+}
+
 // sort a table by a columnIndex (start from 1), isASC = false => sort descending
 function sortByColumn(tableObj, columnIndex, isASC) {
 	var rows = tableObj.find('tr');
 	rows.sort(function(a, b) {
-		var keyA = $(a).find('td:nth-child(' + columnIndex + ')').text();
-		var keyB = $(b).find('td:nth-child(' + columnIndex + ')').text();
-
-		// trim percentage off and list price
-		var resA = keyA.split("(");
-		var resB = keyB.split("(");
-		keyA = parseFloat(resA[0].replace(/,/g, ''));
-		keyB = parseFloat(resB[0].replace(/,/g, ''));
+		var keyA = getPrice($(a).find('td:nth-child(' + columnIndex + ')').text());
+		var keyB = getPrice($(b).find('td:nth-child(' + columnIndex + ')').text());
 
 		// compare
 		if (isASC) {
@@ -127,7 +137,6 @@ function sortByColumn(tableObj, columnIndex, isASC) {
 			return keyB - keyA;
 		}
 	});
-	console.log(rows);
 
 	// append back to table
 	tableObj.empty();
@@ -150,7 +159,7 @@ var suggestions = new Bloodhound({
 	},
 	transform: function(response) {
 		return JSON.parse(response);
-	}
+	}	
 });
 
 $(document).ready(function() {
@@ -204,8 +213,16 @@ $(document).on('click', "a[data-role='moreDetails']", function(event) {
 });
 
 $("input[name='keyword']").typeahead(null, {
-	// display: 'value',
-	source: suggestions
+	source: suggestions,
+	limit: 'Infinity',
+	templates: {
+		suggestion: function (data) {
+			return '<div class="col-sm-6 col-md-6 col-lg-6"><strong>' + data + '</strong></p>';
+		}
+	}
+}).on('typeahead:open', function() {
+	console.log('opened');
+	$(document).find(".tt-open .tt-dataset").addClass('row');
 });
 
 });
