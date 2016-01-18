@@ -1,3 +1,10 @@
+<?php
+$query = '';
+if (isset($_GET['query'])) {
+	$query = urldecode($_GET['query']);
+}
+?>
+
 <html>
 <head>
 	<title>Ebay - Amazon Item Search</title>
@@ -77,7 +84,7 @@
 	<div class='col-md-offset-2 col-lg-offset-2 col-sm-12 col-md-8 col-lg-8'>
 	<form id='form-keywordSearch' class='form-group'>
 		<div class='form-group col-sm-10 col-md-10 col-lg-10'>
-			<input type='text' class='col-sm-12 col-md-12 col-lg-12 form-control' name='keyword' />
+			<input type='text' class='col-sm-12 col-md-12 col-lg-12 form-control' name='keyword' value='<?php echo $query; ?>' />
 		</div>
 		<button type='submit' class='btn btn-primary col-sm-2 col-md-2 col-lg-2'>Search</button>
 	</form>
@@ -127,13 +134,22 @@ function sortByColumn(tableObj, columnIndex, isASC) {
 			return keyB - keyA;
 		}
 	});
-	console.log(rows);
 
 	// append back to table
 	tableObj.empty();
 	rows.each(function(index, r) {
 		tableObj.append(r);
 	});
+}
+
+function updateQueryStringParameter(uri, key, value) {
+	var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+	var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+	if (uri.match(re)) {
+		return uri.replace(re, '$1' + key + "=" + value + '$2');
+	} else {
+		return uri + separator + key + "=" + value;
+	}
 }
 
 var suggestions = new Bloodhound({
@@ -164,6 +180,7 @@ $('#form-keywordSearch').on('submit', function(event) {
 		alert(keyword.length + " Keyword too long (must be less than 350 characters)");
 		return false;
 	}
+	window.history.pushState({}, "", updateQueryStringParameter(window.location.href, 'query', encodeURI(keyword)));
 	$.when( ajaxCall(keyword, 'start'), ajaxCall(keyword, 'ebay'), ajaxCall(keyword, 'amazon'), ajaxCall(keyword, 'end') ).done(function(a1, a2, a3, a4) {
 		$("#container-result [data-role='content']").html(a1[0] + a2[0] + a3[0] + a4[0]);
 		sortByColumn($("#container-result table").find('tbody'), 4, true);
@@ -201,14 +218,23 @@ $(document).on('click', "a[data-role='moreDetails']", function(event) {
 			}
 		}
 	});
+
 });
+
+<?php
+if ($query != '') {
+?>
+	$('#form-keywordSearch').trigger('submit');
+<?php
+}
+?>
 
 $("input[name='keyword']").typeahead(null, {
 	// display: 'value',
 	source: suggestions
 });
-
 });
+
 </script>
 
 <div class="modal fade" tabindex="-1" role="dialog" id='modal-amazonReviews'>
