@@ -17,7 +17,8 @@ class Loading {
 	}
 
 	public function exportToArray() {
-		$arr = array($this -> fx, $this -> fy, $this -> fz, $this -> mx, $this -> my, $this -> mz);
+		// $arr = array($this -> fx, $this -> fy, $this -> fz, $this -> mx, $this -> my, $this -> mz);
+		$arr = array($this -> fz, $this -> my);
 		for ($i = 0; $i < count($arr); $i++) {
 			if ($arr[$i] == null) { $arr[$i] = 0; }
 		}

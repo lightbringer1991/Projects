@@ -65,5 +65,13 @@ class Database {
 		}
 		return $this -> data;
 	}
+
+	public function executeQuery($query) {
+		if ($result = $this -> db -> query($query)) {
+			return $this -> db -> query($query);
+		} else {
+			die("Error executing query: " . mysqli_error($this -> db));
+		}
+	}
 }
 ?>
