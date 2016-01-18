@@ -25,7 +25,14 @@ class FEA {
 
 	// generate $k_e for an element
 	public function generateKE_1($elementObj) {
-		$E = $elementObj -> PK4ba_mat;
+		$db = new Database();
+		$query = "SELECT `E` FROM `ba_mat` WHERE `rcdNo`=";
+		if ($elementObj -> PK4ba_mat == 2) { $query .= "22"; }
+		elseif ($elementObj -> PK4ba_mat == 0) { $query .= "23"; }
+		$dataset = $db -> executeQuery($query);
+		$r = $dataset -> fetch_assoc();
+
+		$E = $r['E'];
 		$I = $elementObj -> PK4ba_g;
 		$EI = $E * $I;
 		$le = $elementObj -> getLength();
@@ -95,6 +102,10 @@ class FEA {
 
 	// perform FEA analysis
 	public function runAnalysis() {
+		// get Beam length
+		$connect = new Connect($this -> mesh -> nodes[0], $this -> mesh -> nodes[count($this -> mesh -> nodes) - 1], 0, 0);
+		$beamLength = $connect -> getLength();
+
 		$ndof = (count($this -> mesh -> connections) + 1) * 2;
 		$xv = array(0, $ndof - 2);
 		$K = $this -> assembleKMatrix();
@@ -102,16 +113,12 @@ class FEA {
 
 		// calculations
 		$K = Utilities::removeRow($K, $xv);
-		print "step1<br />";
 		$K = Utilities::removeCol($K, $xv);
-		print "step2<br />";
 		$F = Utilities::removeRow($F, $xv);
-		print "step3<br />";
 		$w0 = Utilities::LUPsolve($K, $F);
-		print "step4<br />";
 
-		$w1 = array_fill(0, $ndof);
-		$xv1 = array_fill(0, $ndof);
+		$w1 = array_fill(0, $ndof, 0);
+		$xv1 = array_fill(0, $ndof, 0);
 		for ($i = 0; $i < $ndof; $i++) { $xv1[$i] = $i; }
 		$xv1 = Utilities::removeRow($xv1, $xv);
 		$w1 = Utilities::replaceVec($w1, $xv1, $w0);
@@ -119,7 +126,7 @@ class FEA {
 		$c = 99;
 		$w4 = array();
 		for ($i = 0; $i <= $c; $i++)  {
-			$xi = $i * $L / $c;
+			$xi = $i * $beamLength / $c;
 			$w4[$i] = 0.01 * pow($xi, 5) - (1 / 30) * pow($xi, 3) + (7 / 300) * $xi;
 		}
 
@@ -130,11 +137,17 @@ class FEA {
 		// echo "\nF = \n\n";
 		// Utilities::showArray($F, count($F));
 
-		echo "\nw1 = \n\n";
+		print "<pre>";
+		print_r($w0);
+		print "</pre>";
+
+		echo "\nw1 = <br /><br />";
 		Utilities::showArray($w1, $ndof, 1, "<br />");
 
-		echo "\nw4 = \n\n";
-		Utilities::showArray($w4, $c+1, 1, "<br />");
+		echo "<br />w4 = <br /><br />";
+		Utilities::showArray($w4, $c + 1, 1, "<br />");
+
+		return $w0;
 	}
 }
 ?>
