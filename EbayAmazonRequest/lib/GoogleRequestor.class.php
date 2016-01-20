@@ -24,7 +24,7 @@ class GoogleRequestor {
 	}
 
 	// returned videos is always $maxResults - 1
-	public function getYouTubeVideos($maxResults = 6) {
+	public function getYouTubeVideos($maxResults = 5) {
 		$client = new Google_Client();
 		$client -> setDeveloperKey(self::$apiKey);
 		$youtube = new Google_Service_YouTube($client);
