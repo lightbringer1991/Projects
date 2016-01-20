@@ -19,6 +19,10 @@
 	height: auto;
 }
 
+.img-youtube:hover {
+	cursor: pointer;
+}
+
 /* CSS code for typeahead, will need to be moved to a separate CSS later */
 .twitter-typeahead {
 	display: inline !important;
@@ -71,6 +75,30 @@
 .tt-suggestion p {
     margin: 0;
 }
+
+/* bootstrap css for 5 equally columns */
+.col-xs-15 {
+    width: 20%;
+    float: left;
+}
+@media (min-width: 768px) {
+.col-sm-15 {
+        width: 20%;
+        float: left;
+    }
+}
+@media (min-width: 992px) {
+    .col-md-15 {
+        width: 20%;
+        float: left;
+    }
+}
+@media (min-width: 1200px) {
+    .col-lg-15 {
+        width: 20%;
+        float: left;
+    }
+}
 </style>
 
 <div class='row'>
@@ -81,6 +109,12 @@
 		</div>
 		<button type='submit' class='btn btn-primary col-sm-2 col-md-2 col-lg-2'>Search</button>
 	</form>
+	</div>
+</div>
+
+<div class='row' id='container-reviews'>
+	<h2>Youtube Reviews</h2>
+	<div class='col-sm-12 col-md-12 col-lg-12' id='container-youtube'>
 	</div>
 </div>
 
@@ -96,6 +130,22 @@
 <div class='loading'>
 	<img src="images/loading_spinner.gif" width='50px' height='50px' /><br />
 	Searching ...
+</div>
+
+<div class='modal fade' id='modal-youtubeVideo' role='dialog'>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title">Modal title</h4>
+			</div>
+			<div class="modal-body">
+				<div class='embed-responsive embed-responsive-16by9'>
+					<iframe class="embed-responsive-item" height='600px'></iframe>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script type='text/javascript'>
@@ -164,6 +214,7 @@ var suggestions = new Bloodhound({
 
 $(document).ready(function() {
 $("#container-result").hide();
+$("#container-reviews").hide();
 $('.loading').hide();
 
 $('#form-keywordSearch').on('submit', function(event) {
@@ -173,6 +224,11 @@ $('#form-keywordSearch').on('submit', function(event) {
 		alert(keyword.length + " Keyword too long (must be less than 350 characters)");
 		return false;
 	}
+	$.when( ajaxCall(keyword, 'youtube') ).done(function(a) {
+		$("#container-youtube").html(a);
+		$("#container-reviews").show();
+	});
+
 	$.when( ajaxCall(keyword, 'start'), ajaxCall(keyword, 'ebay'), ajaxCall(keyword, 'amazon'), ajaxCall(keyword, 'end') ).done(function(a1, a2, a3, a4) {
 		$("#container-result [data-role='content']").html(a1[0] + a2[0] + a3[0] + a4[0]);
 		sortByColumn($("#container-result table").find('tbody'), 4, true);
@@ -210,6 +266,14 @@ $(document).on('click', "a[data-role='moreDetails']", function(event) {
 			}
 		}
 	});
+});
+
+$(document).on('click', '.img-youtube', function(event) {
+	var url = $(event.currentTarget).parent().data('src');
+	var title = $(event.currentTarget).parent().data('title');
+
+	$("#modal-youtubeVideo").find('.modal-title').html(title);
+	$("#modal-youtubeVideo").find('iframe').attr('src', url);
 });
 
 $("input[name='keyword']").typeahead(null, {

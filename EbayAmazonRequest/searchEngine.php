@@ -83,5 +83,12 @@ switch ($_POST['site']) {
 		$re = new GoogleRequestor($_POST['keyword']);
 		echo json_encode($re -> generateSuggestions());
 		break;
+	case 'youtube':
+		$re = new GoogleRequestor($_POST['keyword'] . " Product Review");
+		$videoList = $re -> getYouTubeVideos();
+		foreach ($videoList as $k => $v) {
+			echo "<div class='col-sm-15 col-md-15 col-lg-15' data-title='$k' data-src='{$v['url']}'><img src='{$v['thumbnail']}' class='col-sm-12 col-md-12 col-lg-12 img-youtube' data-toggle='modal' data-target='#modal-youtubeVideo' /></div>";
+		}
+		break;
 }
 ?>
