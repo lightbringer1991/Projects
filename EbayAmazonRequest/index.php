@@ -30,6 +30,17 @@ if (isset($_GET['query'])) {
 	cursor: pointer;
 }
 
+.modal-nopadding {
+	padding: 0;
+	padding-left: 70px;
+	padding-right: 70px;
+}
+
+
+.modal-xlg {
+	width: 70%;
+}
+
 /* CSS code for typeahead, will need to be moved to a separate CSS later */
 .twitter-typeahead {
 	display: inline !important;
@@ -120,7 +131,7 @@ if (isset($_GET['query'])) {
 </div>
 
 <div class='row' id='container-reviews'>
-	<h2>Youtube Reviews</h2>
+	<h2>Top 5 Youtube Reviews</h2>
 	<div class='col-sm-12 col-md-12 col-lg-12' id='container-youtube'>
 	</div>
 </div>
@@ -139,17 +150,15 @@ if (isset($_GET['query'])) {
 	Searching ...
 </div>
 
-<div class='modal fade' id='modal-youtubeVideo' role='dialog'>
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			<h4 class="modal-title">Modal title</h4>
-			</div>
-			<div class="modal-body">
-				<div class='embed-responsive embed-responsive-16by9'>
-					<iframe class="embed-responsive-item" height='600px'></iframe>
+<div class='modal fade' id='modal-youtubeVideo' role='dialog' style='vertical-align: middle;'>
+	<div class="modal-dialog modal-xlg">
+		<div class="modal-content" style='background-color: black;'>
+			<div class='row'>
+			<div class="modal-body modal-nopadding" style='border-style: none;'>
+				<div class='col-sm-12 col-md-12 col-lg-12 embed-responsive embed-responsive-16by9'>
+					
 				</div>
+			</div>
 			</div>
 		</div>
 	</div>
@@ -264,6 +273,7 @@ $(document).ajaxStop(function()
     $('.loading').hide();  // hide loading indicator
 });
 
+// amazon reviews
 $(document).on('click', "a[data-role='url_amazonReviews']", function() {
 	$("#modal-amazonReviews").find('.modal-body iframe').attr('src', $(this).data('href'));
 });
@@ -288,12 +298,25 @@ $(document).on('click', "a[data-role='moreDetails']", function(event) {
 
 });
 
+// youtube videos
 $(document).on('click', '.img-youtube', function(event) {
 	var url = $(event.currentTarget).parent().data('src');
-	var title = $(event.currentTarget).parent().data('title');
+	var iframeCode = '<iframe class="embed-responsive-item" src="' + url + '"></iframe>';
+	
+	$("#modal-youtubeVideo").find('.modal-body .embed-responsive').html(iframeCode);
+	
+});
 
-	$("#modal-youtubeVideo").find('.modal-title').html(title);
-	$("#modal-youtubeVideo").find('iframe').attr('src', url);
+// center the modal vertically
+$("#modal-youtubeVideo").on('show.bs.modal', function(event) {
+	// should have the same percentage with .modal-xlg in the css style
+	var modal_height = window.innerWidth * 70 / 100 * 9 /16;
+	$("#modal-youtubeVideo").find('.modal-dialog').css("margin-top", Math.max(0, (window.innerHeight - modal_height) / 2));
+});
+
+// clear the embedded youtube iframe on modal close, stop the video from playing
+$("#modal-youtubeVideo").on('hidden.bs.modal', function(event) {
+	$(event.currentTarget).find('.modal-body .embed-responsive').html("");
 });
 
 <?php

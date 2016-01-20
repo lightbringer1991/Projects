@@ -87,7 +87,13 @@ switch ($_POST['site']) {
 		$re = new GoogleRequestor($_POST['keyword'] . " Product Review");
 		$videoList = $re -> getYouTubeVideos();
 		foreach ($videoList as $k => $v) {
-			echo "<div class='col-sm-15 col-md-15 col-lg-15' data-title='$k' data-src='{$v['url']}'><img src='{$v['thumbnail']}' class='col-sm-12 col-md-12 col-lg-12 img-youtube' data-toggle='modal' data-target='#modal-youtubeVideo' /></div>";
+			echo "	<div class='col-sm-15 col-md-15 col-lg-15' data-title='$k' data-src='{$v['url']}'>
+						<img src='{$v['thumbnail']}' class='col-sm-12 col-md-12 col-lg-12 img-youtube' data-toggle='modal' data-target='#modal-youtubeVideo' /><br />
+						<div class='row'>
+							<div class='col-sm-offset-1 col-md-offset-1 col-lg-offset-1 col-sm-5 col-md-5 col-lg-5'>Views: {$v['views']}</div>
+							<div class='col-sm-5 col-md-5 col-lg-5'><div class='pull-right'>{$v['duration']}</div></div>
+						</div>
+					</div>";
 		}
 		break;
 }
