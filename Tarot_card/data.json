@@ -1,0 +1,381 @@
+{	
+	"metadata": {
+		"imgFolder": "tarot_cards/",
+		"blankcard": "blank-card.png",
+		"backcard": "tarotback2.png"
+	},
+	"0": {
+		"img": "0 The Fool.jpg",
+		"messages": {
+			"past": {
+				"normal": "Fool",
+				"reverse": "Reverse Fool"				
+			},
+			"present": {
+				"normal": "Fool",
+				"reverse": "Reverse Fool"
+			},
+			"future": {
+				"normal": "Fool",
+				"reverse": "Reverse Fool"				
+			}
+		}
+	},
+	"1": {
+		"img": "I The Magician.jpg",
+		"messages": {
+			"past": {
+				"normal": "Magician",
+				"reverse": "Reverse Magician"				
+			},
+			"present": {
+				"normal": "Magician",
+				"reverse": "Reverse Magician"				
+			},
+			"future": {
+				"normal": "Magician",
+				"reverse": "Reverse Magician"				
+			}
+		}
+	},	
+	"2": {
+		"img": "II The High Priestess.jpg",
+		"messages": {
+			"past": {
+				"normal": "Priestess",
+				"reverse": "Reverse Priestess"
+			},
+			"present": {
+				"normal": "Priestess",
+				"reverse": "Reverse Priestess"
+			},
+			"future": {
+				"normal": "Priestess",
+				"reverse": "Reverse Priestess"
+			}
+		}
+	},
+	"3": {
+		"img": "III The Empress.jpg",
+		"messages": {
+			"past": {
+				"normal": "Empress",
+				"reverse": "Reverse Empress"
+			},
+			"present": {
+				"normal": "Empress",
+				"reverse": "Reverse Empress"
+			},
+			"future": {
+				"normal": "Empress",
+				"reverse": "Reverse Empress"
+			}
+		}
+	},
+	"4": {
+		"img": "IV The Emperor.jpg",
+		"messages": {
+			"past": {
+				"normal": "Emperor",
+				"reverse": "Reverse Emperor"
+			},
+			"present": {
+				"normal": "Emperor",
+				"reverse": "Reverse Emperor"
+			},
+			"future": {
+				"normal": "Emperor",
+				"reverse": "Reverse Emperor"
+			}
+		}
+	},
+	"5": {
+		"img": "V The Hierophant.jpg",
+		"messages": {
+			"past": {
+				"normal": "Hierophant",
+				"reverse": "Reverse Hierophant"
+			},
+			"present": {
+				"normal": "Hierophant",
+				"reverse": "Reverse Hierophant"
+			},
+			"future": {
+				"normal": "Hierophant",
+				"reverse": "Reverse Hierophant"
+			}
+		}
+	},
+	"6": {
+		"img": "VI The Lovers.jpg",
+		"messages": {
+			"past": {
+				"normal": "Lovers",
+				"reverse": "Reverse Lovers"
+			},
+			"present": {
+				"normal": "Lovers",
+				"reverse": "Reverse Lovers"
+			},
+			"future": {
+				"normal": "Lovers",
+				"reverse": "Reverse Lovers"
+			}
+		}
+	},
+	"7": {
+		"img": "VII The Chariot.jpg",
+		"messages": {
+			"past": {
+				"normal": "Chariot",
+				"reverse": "Reverse Chariot"
+			},
+			"present": {
+				"normal": "Chariot",
+				"reverse": "Reverse Chariot"
+			},
+			"future": {
+				"normal": "Chariot",
+				"reverse": "Reverse Chariot"
+			}
+		}
+	},
+	"8": {
+		"img": "VIII Justice.jpg",
+		"messages": {
+			"past": {
+				"normal": "Justice",
+				"reverse": "Reverse Justice"
+			},
+			"present": {
+				"normal": "Justice",
+				"reverse": "Reverse Justice"
+			},
+			"future": {
+				"normal": "Justice",
+				"reverse": "Reverse Justice"
+			}
+		}
+	},
+	"9": {
+		"img": "IX The Hermit.jpg",
+		"messages": {
+			"past": {
+				"normal": "Hermit",
+				"reverse": "Reverse Hermit"
+			},
+			"present": {
+				"normal": "Hermit",
+				"reverse": "Reverse Hermit"
+			},
+			"future": {
+				"normal": "Hermit",
+				"reverse": "Reverse Hermit"
+			}
+		}
+	},
+	"10": {
+		"img": "X Wheel of Fortune.jpg",
+		"messages": {
+			"past": {
+				"normal": "Wheel of Fortune",
+				"reverse": "Reverse Wheel of Fortune"
+			},
+			"present": {
+				"normal": "Wheel of Fortune",
+				"reverse": "Reverse Wheel of Fortune"
+			},
+			"future": {
+				"normal": "Wheel of Fortune",
+				"reverse": "Reverse Wheel of Fortune"
+			}			
+		}
+	},
+	"11": {
+		"img": "XI Strength.jpg",
+		"messages": {
+			"past": {
+				"normal": "Strength",
+				"reverse": "Reverse Strength"
+			},
+			"present": {
+				"normal": "Strength",
+				"reverse": "Reverse Strength"
+			},
+			"future": {
+				"normal": "Strength",
+				"reverse": "Reverse Strength"
+			}
+		}
+	},
+	"12": {
+		"img": "XII The Hanged Man.jpg",
+		"messages": {
+			"past": {
+				"normal": "Hanged Man",
+				"reverse": "Reverse Hanged Man"
+			},
+			"present": {
+				"normal": "Hanged Man",
+				"reverse": "Reverse Hanged Man"
+			},
+			"future": {
+				"normal": "Hanged Man",
+				"reverse": "Reverse Hanged Man"
+			}
+		}
+	},
+	"13": {
+		"img": "XIII Death.jpg",
+		"messages": {
+			"past": {
+				"normal": "Death",
+				"reverse": "Reverse Death"
+			},
+			"present": {
+				"normal": "Death",
+				"reverse": "Reverse Death"
+			},
+			"future": {
+				"normal": "Death",
+				"reverse": "Reverse Death"
+			}
+		}
+	},
+	"14": {
+		"img": "XIV Temperance.jpg",
+		"messages": {
+			"past": {
+				"normal": "Temperance",
+				"reverse": "Reverse Temperance"
+			},
+			"present": {
+				"normal": "Temperance",
+				"reverse": "Reverse Temperance"
+			},
+			"future": {
+				"normal": "Temperance",
+				"reverse": "Reverse Temperance"
+			}
+		}
+	},
+	"15": {
+		"img": "XV The Devil.jpg",
+		"messages": {
+			"past": {
+				"normal": "Devil",
+				"reverse": "Reverse Devil"
+			},
+			"present": {
+				"normal": "Devil",
+				"reverse": "Reverse Devil"
+			},
+			"future": {
+				"normal": "Devil",
+				"reverse": "Reverse Devil"
+			}
+		}
+	},
+	"16": {
+		"img": "XVI The Tower.jpg",
+		"messages": {
+			"past": {
+				"normal": "Tower",
+				"reverse": "Reverse Tower"
+			},
+			"present": {
+				"normal": "Tower",
+				"reverse": "Reverse Tower"
+			},
+			"future": {
+				"normal": "Tower",
+				"reverse": "Reverse Tower"
+			}
+		}
+	},
+	"17": {
+		"img": "XVII The Star.jpg",
+		"messages": {
+			"past": {
+				"normal": "Star",
+				"reverse": "Reverse Star"
+			},
+			"present": {
+				"normal": "Star",
+				"reverse": "Reverse Star"
+			},
+			"future": {
+				"normal": "Star",
+				"reverse": "Reverse Star"
+			}
+		}
+	},
+	"18": {
+		"img": "XVIII The Moon.jpg",
+		"messages": {
+			"past": {
+				"normal": "Moon",
+				"reverse": "Reverse Moon"
+			},
+			"present": {
+				"normal": "Moon",
+				"reverse": "Reverse Moon"
+			},
+			"future": {
+				"normal": "Moon",
+				"reverse": "Reverse Moon"
+			}
+		}
+	},
+	"19": {
+		"img": "XIX The Sun.jpg",
+		"messages": {
+			"past": {
+				"normal": "Sun",
+				"reverse": "Reverse Sun"
+			},
+			"present": {
+				"normal": "Sun",
+				"reverse": "Reverse Sun"
+			},
+			"future": {
+				"normal": "Sun",
+				"reverse": "Reverse Sun"
+			}
+		}
+	},
+	"20": {
+		"img": "XX Judgement.jpg",
+		"messages": {
+			"past": {
+				"normal": "Judgement",
+				"reverse": "Reverse Judgement"
+			},
+			"present": {
+				"normal": "Judgement",
+				"reverse": "Reverse Judgement"
+			},
+			"future": {
+				"normal": "Judgement",
+				"reverse": "Reverse Judgement"
+			}			
+		}
+	},
+	"21": {
+		"img": "XXI The World.jpg",
+		"messages": {
+			"past": {
+				"normal": "World",
+				"reverse": "Reverse World"
+			},
+			"present": {
+				"normal": "World",
+				"reverse": "Reverse World"
+			},
+			"future": {
+				"normal": "World",
+				"reverse": "Reverse World"
+			}
+		}
+	}
+}

@@ -1,0 +1,32 @@
+html, body {
+	height: 100%;
+}
+
+.container-chosen {
+	position: absolute;
+	bottom: 5px;
+	width: 100%;
+}
+
+.img-chosen {
+	margin: 0 auto;
+}
+
+.img-deck {
+	position: absolute;
+	cursor: pointer;
+	z-index: 10;
+}
+
+.img-chosen.reverse {
+    -moz-transform: scaleY(-1);
+    -o-transform: scaleY(-1);
+    -webkit-transform: scaleY(-1);
+    transform: scaleY(-1);
+    filter: FlipV;
+    -ms-filter: "FlipV";
+}
+
+[data-role='card-message'] {
+	text-align: center;
+}
