@@ -12,9 +12,9 @@ function generateTable($data, $store) {
 			$discountInfo .= "(save {$v['percentagesaved']}%)";
 		}
 
-		$output .= "<tr id='$k'>
+		$output .= "<tr id='$k' data-store='$store'>
 						<td class='col-sm-2 col-md-2 col-lg-2'><img src='{$v['logo']}' class='img-rounded'></td>
-						<td class='col-sm-2 col-md-2 col-lg-2'><img src='{$v['picture']}' class='product-image img-rounded col-sm-10 col-md-10 col-lg-10'></td>
+						<td class='col-sm-2 col-md-2 col-lg-2'><img src='{$v['picture']}' class='product-image img-rounded col-sm-10 col-md-10 col-lg-10' /></td>
 						<td class='col-sm-2 col-md-2 col-lg-2'>
 							{$v['title']}
 							<br /><a data-store='$store' data-role='moreDetails' target='_blank' href='#'>More Details &gt;&gt;</a>
@@ -95,6 +95,9 @@ switch ($_POST['site']) {
 						</div>
 					</div>";
 		}
+		break;
+	case 'ebay_itemSold':
+		echo EbayRequestor::getItemSoldCount($_POST['id']);
 		break;
 }
 ?>

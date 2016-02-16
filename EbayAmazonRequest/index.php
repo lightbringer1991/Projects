@@ -221,6 +221,23 @@ function updateQueryStringParameter(uri, key, value) {
 	}
 }
 
+function getEbayItemSold(containerObj) {
+	console.log(containerObj.find("tr[data-store='ebay']"));
+	containerObj.find("tr[data-store='ebay']").each(function() {
+		var id = $(this).attr('id');
+		var that = $(this);
+		$.ajax({
+			type: 'POST',
+			url: 'searchEngine.php',
+			global: false, 				// loading gif will not display
+			data: { 'keyword': '', 'site': 'ebay_itemSold', 'id': id },
+			success: function(data) {
+				that.find("td:nth-child(2)").append("<p style='clear: both;'><div class='alert alert-info' role='alert'>" + data + " sold</div></p>");
+			}
+		});
+	});
+}
+
 var suggestions = new Bloodhound({
 	datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
 	queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -261,6 +278,7 @@ $('#form-keywordSearch').on('submit', function(event) {
 		$("#container-result [data-role='content']").html(a1[0] + a2[0] + a3[0] + a4[0]);
 		sortByColumn($("#container-result table").find('tbody'), 4, true);
 		$("#container-result").show();
+		getEbayItemSold($("#container-result"));
 	});
 });
 
@@ -304,7 +322,6 @@ $(document).on('click', '.img-youtube', function(event) {
 	var iframeCode = '<iframe class="embed-responsive-item" src="' + url + '"></iframe>';
 	
 	$("#modal-youtubeVideo").find('.modal-body .embed-responsive').html(iframeCode);
-	
 });
 
 // center the modal vertically
@@ -339,6 +356,7 @@ $("input[name='keyword']").typeahead(null, {
 	console.log('opened');
 	$(document).find(".tt-open .tt-dataset").addClass('row');
 });
+
 });
 
 </script>

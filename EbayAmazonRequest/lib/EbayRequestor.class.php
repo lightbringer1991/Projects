@@ -131,7 +131,28 @@ class EbayRequestor {
 			'Content-Type: text/xml;charset=utf-8'
 		);
 		return self::executeCurl(self::$shoppingAPIURL, $header, $xmlRequest);
+	}
 
+	public static function getItemSoldCount($itemID) {
+		$xmlRequest = "<?xml version='1.0' encoding='utf-8'?>
+						<GetSingleItemRequest xmlns='urn:ebay:apis:eBLBaseComponents'>
+							<ItemID>$itemID</ItemID>
+							<IncludeSelector>Details</IncludeSelector>
+						</GetSingleItemRequest>";
+		$header = array(
+			'X-EBAY-API-APP-ID: ' . self::$appID,
+			'X-EBAY-API-VERSION:949',
+			'X-EBAY-API-CALL-NAME: GetSingleItem',
+			'X-EBAY-SOA-GLOBAL-ID: EBAY-US',
+			'X-EBAY-API-REQUEST-ENCODING:XML',
+			'X-EBAY-API-TRACKING-ID:' . self::$trackingID,
+			'X-EBAY-API-TRACKING-PARTNER-CODE: 9',
+			'Content-Type: text/xml;charset=utf-8'
+		);
+		$itemData = self::executeCurl(self::$shoppingAPIURL, $header, $xmlRequest);
+
+		$simpleXML = new SimpleXMLElement($itemData);
+		return $simpleXML -> Item -> QuantitySold -> __toString();
 	}
 
 	// return curl output
