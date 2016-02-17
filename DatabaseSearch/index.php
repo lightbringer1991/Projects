@@ -47,6 +47,7 @@ if (!isset($_GET['step']) || ($_GET['step'] == 1)) {
 <script type='text/javascript'>
 $(document).ready(function() {
 	$("#form1").on('submit', function() {
+/*
 		var captchaValue = $(this).find("input[name='captcha']").val();
 		// check captcha length
 		if (!captchaValue.match(/^\d{5}$/)) {
@@ -71,7 +72,7 @@ $(document).ready(function() {
 			}
 		});
 		if (!flag) { return false; }
-
+*/
 		// validate input
 		var inputValue = $(this).find("input[name='first_data']").val();
 		if (inputValue == '') {

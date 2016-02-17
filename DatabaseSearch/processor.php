@@ -1,15 +1,23 @@
 <?php
 require_once "data.php";
 
+// append 0 if 1 <= $n <= 9
+function formatNumber($n) {
+	if (($n >= 1) && ($n <= 9)) {
+		$n = "0" . $n;
+	}
+	return $n;
+}
+
 // return array('status', 'value')
 // status can be true or false
-// if status == true, value is the needed value
+// if status == true, value is the merchant_sso
 // if status == false, value is the index where data is found
 function interrogateFirstData($data, $unit, $asslist) {
 	foreach ($unit as $k => $v) {
 		if ($v == $data) {
-			if ($asslist[$k][0] == 1) {
-				return array(true, $asslist[$k][1]);
+			if ($asslist[$k][0] == '1') {
+				return array(true, formatNumber($asslist[$k][1]));
 			} else {
 				return array(false, $k);
 			}
@@ -17,12 +25,12 @@ function interrogateFirstData($data, $unit, $asslist) {
 	}
 }
 
-// return expected value
+// return merchant SSO
 function interrogateSecondData($second_input, $cname) {
 	$inputLength = strlen($second_input);
 	foreach ($cname as $k => $v) {
 		if (strpos($v, $second_input) === 0) {
-			return $k;
+			return formatNumber($k);
 		}
 	}
 	return null;
@@ -70,26 +78,31 @@ switch ($_GET['step']) {
 	case '1':
 		$value = interrogateFirstData($_POST['first_data'], $unit, $asslist);
 		if ($value[0] == true) {
-			echo "Result: " . $value[1] . "<br />";
-			callEzPayAPI($_POST['first_data'], $value[1]);
+			$merchant_sso = $value[1];
+			$acc_sso = $merchant_sso . $_POST['first_data'];
+			echo "Merchant SOO: $merchant_sso <br />";
+			echo "Acc SSO: $acc_sso<br />";
+			callEzPayAPI($acc_sso, $merchant_sso);
 		} else {
 			echo "	<script type='text/javascript'>
 						window.location.href = 'index.php?step=2&d1={$value[1]}';
-					</script>";		
+					</script>";
 		}
 		break;
 	case '2':
-		$value = interrogateSecondData($_POST['second_data'], $cname);
-		if ($value == null) { echo "Result: Not Found <br />"; }
+		$merchant_sso = interrogateSecondData($_POST['second_data'], $cname);
+		$acc_sso = $merchant_sso . $unit[$_POST['index_1']];
+		if ($merchant_sso == null) { echo "Result: Data Not Found <br />"; }
 		else {
-			echo "Result: " . $value;
-			callEzPayAPI($unit[$_POST['index_1']], $value);
+			echo "Merchant SOO: $merchant_sso <br />";
+			echo "Acc SSO: $acc_sso<br />";
+			callEzPayAPI($acc_sso, $merchant_sso);
 		}
 		
 		break;
 	case 'captcha':
 		// check captcha
-		// session_start();
+		session_start();
 		if($_POST['captcha'] != $_SESSION['digit']) {
 			// wrong captcha
 			echo 0;
