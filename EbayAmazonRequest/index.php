@@ -232,7 +232,10 @@ function getEbayItemSold(containerObj) {
 			global: false, 				// loading gif will not display
 			data: { 'keyword': '', 'site': 'ebay_itemSold', 'id': id },
 			success: function(data) {
-				that.find("td:nth-child(2)").append("<p style='clear: both;'><div class='alert alert-info' role='alert'>" + data + " sold</div></p>");
+				// skip displaying sold count if count = 0
+				if (data > 0) {
+					that.find("td:nth-child(2)").append("<p style='clear: both;'><div class='alert alert-info' role='alert'>" + data + " sold</div></p>");
+				}
 			}
 		});
 	});
