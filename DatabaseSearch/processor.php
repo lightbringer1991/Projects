@@ -4,7 +4,7 @@ require_once "data.php";
 // append 0 if 1 <= $n <= 9
 function formatNumber($n) {
 	if (($n >= 1) && ($n <= 9)) {
-		$n = "0" . $n;
+		$n = "A" . $n;
 	}
 	return $n;
 }
@@ -26,11 +26,14 @@ function interrogateFirstData($data, $unit, $asslist) {
 }
 
 // return merchant SSO
-function interrogateSecondData($second_input, $cname) {
+// $cname: array from data.php
+// $focused_asslist: $asslist[$i] where $unit[$i] = first_input
+function interrogateSecondData($second_input, $cname, $focused_asslist) {
 	$inputLength = strlen($second_input);
-	foreach ($cname as $k => $v) {
-		if (strpos($v, $second_input) === 0) {
-			return formatNumber($k);
+	// check for each $asslist[$i], $i >= 1
+	for ($i = 1; $i < count($focused_asslist); $i++) {
+		if (strpos($cname[$focused_asslist[$i]], $second_input) === 0) {
+			return $focused_asslist[$i];
 		}
 	}
 	return null;
@@ -90,7 +93,7 @@ switch ($_GET['step']) {
 		}
 		break;
 	case '2':
-		$merchant_sso = interrogateSecondData($_POST['second_data'], $cname);
+		$merchant_sso = interrogateSecondData($_POST['second_data'], $cname, $asslist[$_POST['index_1']]);
 		$acc_sso = $merchant_sso . $unit[$_POST['index_1']];
 		if ($merchant_sso == null) { echo "Result: Data Not Found <br />"; }
 		else {
@@ -111,4 +114,5 @@ switch ($_GET['step']) {
 		};
 		break;
 }
+
 ?>
