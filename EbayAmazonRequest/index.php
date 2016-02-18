@@ -44,6 +44,10 @@ if (isset($_GET['query'])) {
 /* CSS code for typeahead, will need to be moved to a separate CSS later */
 .twitter-typeahead {
 	display: inline !important;
+	position: absolute !important;
+	width: 100%;
+	right: 2%;
+	z-index: 200;
 }
 
 .tt-query, /* UPDATE: newer versions use tt-input instead of tt-query */
@@ -64,6 +68,7 @@ if (isset($_GET['query'])) {
 
 .tt-hint {
     color: #999;
+    display: none;
 }
 
 .tt-menu { /* UPDATE: newer versions use tt-menu instead of tt-dropdown-menu */
@@ -76,6 +81,7 @@ if (isset($_GET['query'])) {
 	border: 1px solid rgba(0, 0, 0, 0.2);
 	border-radius: 8px;
 	box-shadow: 0 5px 10px rgba(0,0,0,.2);
+	z-index: -1 !important;
 }
 
 .tt-suggestion {
@@ -278,10 +284,12 @@ $('#form-keywordSearch').on('submit', function(event) {
 	});
 
 	$.when( ajaxCall(keyword, 'start'), ajaxCall(keyword, 'ebay'), ajaxCall(keyword, 'amazon'), ajaxCall(keyword, 'end') ).done(function(a1, a2, a3, a4) {
-		$("#container-result [data-role='content']").html(a1[0] + a2[0] + a3[0] + a4[0]);
-		sortByColumn($("#container-result table").find('tbody'), 4, true);
-		$("#container-result").show();
-		getEbayItemSold($("#container-result"));
+		setTimeout(function() {
+			$("#container-result [data-role='content']").html(a1[0] + a2[0] + a3[0] + a4[0]);
+			sortByColumn($("#container-result table").find('tbody'), 4, true);
+			$("#container-result").show();
+			getEbayItemSold($("#container-result"));			
+		}, 200);
 	});
 });
 
@@ -356,7 +364,6 @@ $("input[name='keyword']").typeahead(null, {
 		}
 	}
 }).on('typeahead:open', function() {
-	console.log('opened');
 	$(document).find(".tt-open .tt-dataset").addClass('row');
 });
 
