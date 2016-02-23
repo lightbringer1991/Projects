@@ -94,6 +94,9 @@ switch ($_GET['step']) {
 			$result = array(
 				'merchant_sso' => $merchant_sso,
 				'acc_sso' => $acc_sso,
+			$result = array(
+				'merchant_sso' => $merchant_sso,
+				'acc_sso' > $acc_sso,
 				'result' => callEzPayAPI($acc_sso, $merchant_sso)
 			);
 			echo json_encode($result);

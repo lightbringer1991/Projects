@@ -34,6 +34,8 @@ if (!isset($_GET['step']) || ($_GET['step'] == 1)) {
 		<form action='#' method='POST' id='form2'>
 			<div class='form-group'>
 				<label for='first_data'>First input</label>
+				<p>line 1</p>
+				<p>line 2</p>
 				<input type='text' name='first_data' class='form-control' value='<?php echo $value_firstData; ?>' maxlength='12' />
 			</div>
 <?php
@@ -41,6 +43,8 @@ if (!isset($_GET['step']) || ($_GET['step'] == 1)) {
 ?>
 			<div class='form-group'>
 				<label for='second_data'>Second input</label>
+				<p>line 1</p>
+				<p>line 2</p>
 				<input type='text' name='second_data' class='form-control' maxlength='8' />
 			</div>
 <?php
@@ -85,7 +89,7 @@ $(document).ready(function() {
 				}
 			}
 		});
-		if (captchaCount == 1) {
+		if (captchaCount == 5) {
 			alert("Max captcha input reached. Aborting.");
 			$("#form1").find('*').attr("disabled", "disabled");
 		} else if (!flag) { return false; }
