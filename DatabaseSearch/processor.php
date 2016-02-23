@@ -32,8 +32,8 @@ function interrogateSecondData($second_input, $cname, $focused_asslist) {
 	$inputLength = strlen($second_input);
 	// check for each $asslist[$i], $i >= 1
 	for ($i = 1; $i < count($focused_asslist); $i++) {
-		if (strpos($cname[$focused_asslist[$i]], $second_input) === 0) {
-			return $focused_asslist[$i];
+		if (isset($cname[$focused_asslist[$i]]) && strpos($cname[$focused_asslist[$i]], $second_input) === 0) {
+			return formatNumber($focused_asslist[$i]);
 		}
 	}
 	return null;
@@ -49,7 +49,8 @@ function callEzPayAPI($acc_sso, $merchant_sso) {
 		'merchant_sso' => $merchant_sso,
 		'acc_sso' => $acc_sso
 	);
-	$url="https://sandbox.ezpay.com/integration/sso.php";
+	// $url="https://sandbox.ezpay.com/integration/sso.php";
+	$url="https://sandbox.revopay.com/integration/sso.php";
 
 	// curl initialization
 	$ch = curl_init();
@@ -66,42 +67,68 @@ function callEzPayAPI($acc_sso, $merchant_sso) {
 
 	// process data
 	if ($result == "") {
-		echo "Not Found";
+		return array("error", "API call: Not Found");
 	} elseif (substr($result, 0, 3) == 'ZX1') {
-		echo "connection error";
+		return array("error", "API call: connection error");
 	} else {
 		//$result has a token to complete the SSO
 		//doing it by redirection
-		header('location:https://sandbox.ezpay.com/integration/sso.php?SsoCode=' . $result);
+		return array("success", $result);
 	}
 }
 
 // first input is entered
 switch ($_GET['step']) {
 	case '1':
+		// nothing to do, step 1 is only captcha validation
+		break;
+	case '2':
 		$value = interrogateFirstData($_POST['first_data'], $unit, $asslist);
 		if ($value[0] == true) {
 			$merchant_sso = $value[1];
 			$acc_sso = $merchant_sso . $_POST['first_data'];
-			echo "Merchant SOO: $merchant_sso <br />";
-			echo "Acc SSO: $acc_sso<br />";
-			callEzPayAPI($acc_sso, $merchant_sso);
+
+			// demo only
+			$acc_sso = "T0032";
+			$merchant_sso = "TEST0004";
+			$result = array(
+				'merchant_sso' => $merchant_sso,
+				'acc_sso' => $acc_sso,
+				'result' => callEzPayAPI($acc_sso, $merchant_sso)
+			);
+			echo json_encode($result);
 		} else {
-			echo "	<script type='text/javascript'>
-						window.location.href = 'index.php?step=2&d1={$value[1]}';
-					</script>";
+			$result = array(
+				'redirect' => "index.php?step=3&d1={$_POST['first_data']}"
+			);
+			echo json_encode($result);
 		}
 		break;
-	case '2':
-		$merchant_sso = interrogateSecondData($_POST['second_data'], $cname, $asslist[$_POST['index_1']]);
-		$acc_sso = $merchant_sso . $unit[$_POST['index_1']];
-		if ($merchant_sso == null) { echo "Result: Data Not Found <br />"; }
-		else {
-			echo "Merchant SOO: $merchant_sso <br />";
-			echo "Acc SSO: $acc_sso<br />";
-			callEzPayAPI($acc_sso, $merchant_sso);
+	case '3':
+		// first data interrogation output is always [false, $index]
+		$value = interrogateFirstData($_POST['first_data'], $unit, $asslist);
+		$merchant_sso = interrogateSecondData($_POST['second_data'], $cname, $asslist[$value[1]]);
+		$acc_sso = $merchant_sso . $_POST['first_data'];
+		$result = array(
+			'merchant_sso' => "",
+			'acc_sso' => "",
+			'result' => ""
+		);
+
+		// demo only
+		$acc_sso = "T0032";
+		$merchant_sso = "TEST0004";
+
+		if ($merchant_sso == null) { 
+			$result['merchant_sso'] = "Data Not Found";
+			$result['acc_sso'] = 'Data Not Found';
+			$result['result'] = array('error', 'API call: Not Found');
+		} else {
+			$result['merchant_sso'] = $merchant_sso;
+			$result['acc_sso'] = $acc_sso;
+			$result['result'] = callEzPayAPI($acc_sso, $merchant_sso);
 		}
-		
+		echo json_encode($result);
 		break;
 	case 'captcha':
 		// check captcha
