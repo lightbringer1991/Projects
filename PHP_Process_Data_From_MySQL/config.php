@@ -1,6 +1,7 @@
 <?php
 
-$dbType = "local";
+// $dbType = "local";
+$dbType = 'new';
 
 switch($dbType) {
 
@@ -21,5 +22,14 @@ switch($dbType) {
         define('DB_HOSTNAME', 'localhost');
         define('DB_USERNAME', 'root');
         define('DB_PASSWORD', 'root');
+        break;
+    case 'new':
+        define('DB_NAME', 'bc_sitelok');
+        define('DB_CALC_NAME', 'calculations_new');
+        define('DB_SITELOK_NAME', 'shared');
+        define('DB_SHARED_NAME', 'shared');
+        define('DB_HOSTNAME', 'localhost');
+        define('DB_USERNAME', 'root');
+        define('DB_PASSWORD', '');
         break;
 }

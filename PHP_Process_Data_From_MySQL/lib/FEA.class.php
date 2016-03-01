@@ -26,13 +26,9 @@ class FEA {
 	// generate $k_e for an element
 	public function generateKE_1($elementObj) {
 		$db = new Database();
-		$query = "SELECT `E` FROM `ba_mat` WHERE `rcdNo`=";
-		if ($elementObj -> PK4ba_mat == 2) { $query .= "22"; }
-		elseif ($elementObj -> PK4ba_mat == 0) { $query .= "23"; }
-		$dataset = $db -> executeQuery($query);
-		$r = $dataset -> fetch_assoc();
 
-		$E = $r['E'];
+		if ($elementObj -> PK4ba_mat == 2) { $E = $db -> getEByRDCNo(22); }
+		elseif ($elementObj -> PK4ba_mat == 0) { $E = $db -> getEByRDCNo(23); }
 		$I = $elementObj -> PK4ba_g;
 		$EI = $E * $I;
 		$le = $elementObj -> getLength();
