@@ -7,9 +7,11 @@
 		$value: contains the pre-defined value, if applicable (only hard nodes)
 */
 require_once "Loading.class.php";
-require_once "ModelBase.class.php";
 
-class Node extends ModelBase {
+class Node {
+	public $x;
+	public $y;
+	public $z;
 	public $loading;
 	public $elementStart;		// contains the Element object of which this node is the start node
 	public $elementEnd; 		// contains the Element obj of which this node is the end node
@@ -18,16 +20,14 @@ class Node extends ModelBase {
 	// acceptable distance between Nodes to be accepted as the same Node
 	public static $delta = 0.0000001;
 
-	public function __construct($fields = array()) {
-		parent::__construct($fields);
+	public function __construct($x, $y, $z) {
+		$this -> x = $x;
+		$this -> y = $y;
+		$this -> z = $z;
 		$this -> loading = new Loading();
 		$this -> value = null;
 		$this -> elementStart = null;
 		$this -> elementEnd = null;
-	}
-
-	public function getTableName() {
-		return 'ba_nodes';
 	}
 
 	// check if a node is between 2 given nodes
@@ -43,7 +43,7 @@ class Node extends ModelBase {
 	// return 0 if $this = $n1
 	// return 1 if $this > $n1
 	public function compare($n1) {
-		$deltaValue = $this -> get('y') - $n1 -> get('y');
+		$deltaValue = $this -> x - $n1 -> x;
 		if ( (abs($deltaValue) > self::$delta) && ($deltaValue > 0) ) { return 1; }
 		elseif ( abs($deltaValue) <= self::$delta ) { return 0; }
 		else { return -1; }
@@ -51,7 +51,7 @@ class Node extends ModelBase {
 
 	// calculate the distance between this node and a node provided
 	public function distance($n) {
-		return abs($this -> get('y') - $n -> get('y'));
+		return abs($this -> x - $n -> x);
 	}
 
 	public static function quickSort($nodeList) {
@@ -71,10 +71,6 @@ class Node extends ModelBase {
 
 			return array_merge(self::quickSort($left), array($pivot), self::quickSort($right));
 		}
-	}
-
-	public static function getAllRecordsByCondition($condition) {
-		return parent::getAllObjectByCondition('Node', $condition);
 	}
 }
 ?>
