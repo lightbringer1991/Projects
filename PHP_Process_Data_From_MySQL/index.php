@@ -14,6 +14,8 @@ $data = $db -> getData($userscalcPK);
 
 $beam = new Mesh_1D($data, $el_max);
 $beam -> run();
+
+echo $beam -> toJSON();
 ?>
 
 <html>

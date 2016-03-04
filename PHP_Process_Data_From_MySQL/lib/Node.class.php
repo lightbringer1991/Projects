@@ -20,6 +20,9 @@ class Node extends ModelBase {
 
 	public function __construct($fields = array()) {
 		parent::__construct($fields);
+		$this -> fields['x'] = doubleval($this -> fields['x']);
+		$this -> fields['y'] = doubleval($this -> fields['y']);
+		$this -> fields['z'] = doubleval($this -> fields['z']);
 		$this -> loading = new Loading();
 		$this -> value = null;
 		$this -> elementStart = null;

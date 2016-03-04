@@ -31,6 +31,49 @@ class Mesh_1D {
 
 	}
 
+	// must be executed after run() function
+	public function toJSON() {
+		$dataArray = array(
+			'nodes' => array(),
+			'elements' => array(),
+			'ilc' => array(),
+			'lc' => null
+		);
+
+		// generate nodes data
+		for ($i = 0; $i < count($this -> nodes); $i++) {
+			$nodeData = array(
+				'id' => $i,
+				'x' => $this -> nodes[$i] -> get('x'),
+				'y' => $this -> nodes[$i] -> get('y'),
+				'z' => $this -> nodes[$i] -> get('z')
+			);
+			array_push($dataArray['nodes'], $nodeData);
+		}
+
+		// generate connect (element) data
+		for ($i = 0; $i < count($this -> connections); $i++) {
+			$elementData = array(
+				'id' => $i,
+				'n_start' => array_search($this -> connections[$i] -> startNode, $this -> nodes),
+				'n_end' => array_search($this -> connections[$i] -> endNode, $this -> nodes)
+			);
+			array_push($dataArray['elements'], $elementData);
+		}
+
+		// generate ilc data
+		for ($i = 0; $i < count($this -> nodes); $i++) {
+			$ilcData = array(
+				'node_id' => $i,
+				'fz' => $this -> nodes[$i] -> loading -> fz,
+				'my' => $this -> nodes[$i] -> loading -> my
+			);
+			array_push($dataArray['ilc'], $ilcData);
+		}
+
+		return json_encode($dataArray);
+	}
+
 	// functions getHardNodes_xxx() should always be run in order
 	// get hard nodes from geometry data
 	// this function assumes that the provided data is well-formed
