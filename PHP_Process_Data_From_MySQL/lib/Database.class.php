@@ -3,6 +3,7 @@ require_once('config.php');
 require_once('Section.class.php');
 require_once('Support.class.php');
 require_once('Ilcs.class.php');
+require_once('Material.class.php');
 
 class Database {
 	private $db;
@@ -46,34 +47,12 @@ class Database {
 			$this -> db -> query("DELETE FROM `ba_supports` WHERE userscalcPK = 0");
 			$this -> db -> query("DELETE FROM `ba_materials` WHERE userscalcPK = 0");
 		}
+		
 		$this -> data['geometry'] = Section::getAllRecordsByUsersCalcPK($userId);
 		$this -> data['support'] = Support::getAllRecordsByUsersCalcPK($userId);
 		$this -> data['ilcs'] = Ilcs::getAllRecordsByUsersCalcPK($userId);
+		$this -> data['material'] = Material::getAllRecordsByUsersCalcPK($userId);
 
-		// $sql_geometry = "SELECT * FROM `ba_sections` WHERE `userscalcPK`='$userId'";
-		// $sql_loading = "SELECT * FROM `ba_ilcs` WHERE `userscalcPK` = '$userId'";
-		// $sql_support = "SELECT * FROM `ba_supports` WHERE `userscalcPK` = '$userId'";
-		$sql_material = "SELECT * FROM `ba_materials` WHERE `userscalcPK` = '$userId'";
-		// if ($result = $this -> db -> query($sql_geometry)) {
-		// 	while ($row = $result -> fetch_assoc()) {
-		// 		array_push($this -> data['geometry'], $row);
-		// 	}
-		// }
-		// if ($result = $this -> db -> query($sql_loading)) {
-		// 	while ($row = $result -> fetch_assoc()) {
-		// 		array_push($this -> data['loading'], $row);
-		// 	}
-		// }
-		// if ($result = $this -> db -> query($sql_support)) {
-		// 	while ($row = $result -> fetch_assoc()) {
-		// 		array_push($this -> data['support'], $row);
-		// 	}
-		// }
-		if ($result = $this -> db -> query($sql_material)) {
-			while ($row = $result -> fetch_assoc()) {
-				array_push($this -> data['material'], $row);
-			}
-		}
 		return $this -> data;
 	}
 

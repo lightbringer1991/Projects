@@ -21,13 +21,13 @@ class Mesh_1D {
 		$this -> getHardNodes_geometry();
 		$this -> getHardNodes_support();
 		$this -> getHardNodes_ilcs();
-		// $this -> generateNodes();
+		$this -> generateNodes();
 		
-		// // generate elements
-		// $this -> generateElements();
+		// generate elements
+		$this -> generateElements();
 
 		// // generate loadings
-		// $this -> generateLoadings();
+		$this -> generateLoadings();
 
 	}
 
@@ -63,7 +63,9 @@ class Mesh_1D {
 		foreach ($this -> rawData['ilcs'] as $ilcsObj) {
 			$nodeList = array_merge($nodeList, $ilcsObj -> getNodes());
 		}
-		$this -> nodes = array_merge($this -> nodes, $nodeList);
+		foreach ($nodeList as $n) {
+			$this -> addNode($n);
+		}
 		$this -> nodes = Node::quickSort($this -> nodes);
 	}
 
@@ -99,12 +101,12 @@ class Mesh_1D {
 			$pk4ba_mat = 0;
 			$pk4ba_g = 0;
 
-			foreach ($this -> rawData['geometry'] as $geoData) {
-				$sNode = new Node($geoData['start'], 0, 0);
-				$eNode = new Node($geoData['end'], 0, 0);
+			foreach ($this -> rawData['geometry'] as $sectionObj) {
+				$sNode = $sectionObj -> getStartNode();
+				$eNode = $sectionObj -> getEndNode();
 				if ( ($startNode -> compare($sNode) >= 0) && ($endNode -> compare($eNode) <= 0) ) {
-					$pk4ba_mat = $geoData['matID'];
-					$pk4ba_g = $geoData['rcdNo'];
+					$pk4ba_mat = $sectionObj -> get('matID');
+					$pk4ba_g = $sectionObj -> get('rcdNo');
 					break;
 				}
 			}
@@ -119,32 +121,37 @@ class Mesh_1D {
 	private function generateLoadings() {
 		// get all predefined loading data
 		foreach ($this -> nodes as $n) {
-			foreach ($this -> rawData['loading'] as $loadingData) {
-				if ( ($loadingData['geometry'] == 'Point') && ($loadingData['type'] == 'Force') && ($loadingData['startLocation'] == $n -> x) ) {
-					$n -> loading -> fz = $loadingData['startValue'];
+			foreach ($this -> rawData['ilcs'] as $ilcsObj) {
+				if ( ($ilcsObj -> get('geometry') == 'Point') 
+					&& ($ilcsObj -> get('component') == 'FX') 
+					&& ($ilcsObj -> get('startLocation') == $n -> get('y')) ) {
+						$n -> loading -> fz = $ilcsObj -> get('startValue');
 				}
-				if ( ($loadingData['geometry'] == 'Point') && ($loadingData['type'] == 'Moment') && ($loadingData['startLocation'] == $n -> x) ) {
-					$n -> loading -> my = $loadingData['startValue'];
+				if ( ($ilcsObj -> get('geometry') == 'Point') 
+					&& ($ilcsObj -> get('component') == 'MZ') 
+					&& ($ilcsObj -> get('startLocation') == $n -> get('y')) ) {
+						$n -> loading -> my = $ilcsObj -> get('startValue');
 				}
 			}
 		}
 
 		// begin calculating the rest
-		foreach ($this -> rawData['loading'] as $loadingData) {
-			if ( $loadingData['geometry'] == 'Distributed' ) {
-				// find all nodes within this space
-				$startNode = new Node($loadingData['startLocation'], 0, 0);
-				$endNode = new Node($loadingData['endLocation'], 0, 0);
+		foreach ($this -> rawData['ilcs'] as $ilcsObj) {
+
+			if ($ilcsObj -> get('geometry') == 'Distributed') {
+				$startNode = new Node( array('y' => doubleval($ilcsObj -> get('startLocation'))) );
+				$endNode = new Node( array('y' => doubleval($ilcsObj -> get('endLocation'))) );
 				$nodeList = $this -> getAllNodesBetweenNodes($startNode, $endNode);
 
-				$vList = Loading::calculateLoading($nodeList, $loadingData['startValue'], $loadingData['endValue']);
+				$vList = Loading::calculateLoading($nodeList, $ilcsObj -> get('startValue'), $ilcsObj -> get('endValue'));
+
 				for ($i = 0; $i < count($nodeList); $i++) {
-					if ($loadingData['type'] == 'Force') {
+					if ($ilcsObj -> get('component') == 'FX') {
 						if ($nodeList[$i] -> loading -> fz == null) {
 							$nodeList[$i] -> loading -> fz = 0;
 						}
 						$nodeList[$i] -> loading -> fz += $vList[$i];
-					} elseif ($loadingData['type'] == 'Moment') {
+					} elseif ($ilcsObj -> get('component') == 'MZ') {
 						if ($nodeList[$i] -> loading -> my == null) {
 							$nodeList[$i] -> loading -> my = 0;
 						}

@@ -14,15 +14,16 @@ class Connect {
 
 	// applies only to 1D element
 	public function increaseLength($length) {
-		$this -> endNode -> x += $length;
+		$y = $this -> endNode -> get('y');
+		$this -> endNode -> set('y',  $y + $length);
 	}
 
 	public function getLength() {
-		return abs($this -> endNode -> x - $this -> startNode -> x);
+		return abs($this -> endNode -> get('y') - $this -> startNode -> get('y'));
 	}
 
 	public function __toString() {
-		return $this -> startNode -> x . ", " . $this -> endNode -> x . ", " . $this -> PK4ba_mat . ", " . $this -> PK4ba_g;
+		return $this -> startNode -> get('y') . ", " . $this -> endNode -> get('y') . ", " . $this -> PK4ba_mat . ", " . $this -> PK4ba_g;
 	}
 }
 ?>

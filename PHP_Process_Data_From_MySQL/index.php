@@ -5,7 +5,7 @@ require_once 'lib/Database.class.php';
 require_once 'lib/Mesh_1D.class.php';
 
 // predefined variables
-$userscalcPK = 104;
+$userscalcPK = 14;
 $el_max = 500;
 
 // data gathering and calculation
@@ -51,9 +51,9 @@ $beam -> run();
 for ($i = 0; $i < count($beam -> nodes); $i++) {
 	echo "	<tr>
 				<td>$i</td>
-				<td>" . $beam -> nodes[$i] -> x . "</td>
-				<td>" . $beam -> nodes[$i] -> y . "</td>
-				<td>" . $beam -> nodes[$i] -> z . "</td>
+				<td>" . $beam -> nodes[$i] -> get('x') . "</td>
+				<td>" . $beam -> nodes[$i] -> get('y') . "</td>
+				<td>" . $beam -> nodes[$i] -> get('z') . "</td>
 			</tr>";
 }
 ?>
