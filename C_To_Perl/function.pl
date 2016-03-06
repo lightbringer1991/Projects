@@ -107,9 +107,6 @@ sub LockyDGA {
 		$x = __ROR4($modConst1 * $modFinal, 7);
 		$y = ($x + $modConst2) % ( (length($tldchars)) / 2 );
 
-		# $domain .= $tldchars[2 * $y];
-		# $domain .= $tldchars[2 * $y + 1];
-		# $domain .= 0;
 		$domain .= substr($tldchars, 2 * $y, 2) . '0';
 	}
 	return $domain;
@@ -120,7 +117,7 @@ sub LockyDGA {
 my $pos = 0;
 my $cfgseed = 7;
 my %systemTime = (
-	'wYear' => 2016,
+	'wYear' => 2010,
 	'wMonth' => 2,
 	'wDayOfWeek' => 6,
 	'wDay' => 24,
