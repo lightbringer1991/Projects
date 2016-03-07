@@ -1,8 +1,6 @@
 use strict;
 use warnings;
 
-use Devel::Size qw(size total_size);
-
 # convert from decimal to binary
 sub dec2bin {
 	my $str = unpack('B32', pack('N', shift));
@@ -109,6 +107,7 @@ sub LockyDGA {
 
 		$domain .= substr($tldchars, 2 * $y, 2) . '0';
 	}
+
 	return $domain;
 }
 
@@ -126,6 +125,5 @@ my %systemTime = (
 	'wSecond' => 32,
 	'wMilliseconds' => 567
 );
-
 
 print LockyDGA($pos, $cfgseed,\%systemTime) . "\n";
