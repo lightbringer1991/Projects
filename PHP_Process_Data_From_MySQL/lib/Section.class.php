@@ -33,5 +33,11 @@ class Section extends ModelBase {
 	public static function getAllRecordsByUsersCalcPK($user_no) {
 		return self::getAllRecordsByCondition("`userscalcPK`=$user_no");
 	}
+
+	public static function getRecordByRcdNo($rcdNo) {
+		$sectionList = self::getAllRecordsByCondition("`rcdNo`=$rcdNo");
+		if (empty($sectionList)) { return null; }
+		else { return $sectionList[0]; }
+	}
 }
 ?>

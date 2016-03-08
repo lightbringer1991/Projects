@@ -147,5 +147,11 @@ class Utilities {
 		//X now contains the solution;
 		return $X;
 	}
+
+	public static function writeToFile($fileName, $content) {
+		$fh = fopen($fileName, 'w');
+		fwrite($fh, $content);
+		fclose($fh);
+	}
 }
 ?>

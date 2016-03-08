@@ -1,6 +1,7 @@
 <?php
 require "PolynomialEquation.class.php";
 require "PolynomialTerm.class.php";
+require "Mesh_1D.class.php";
 require "Utilities.class.php";
 
 class FEA {
@@ -27,8 +28,37 @@ class FEA {
 	public function generateKE_1($elementObj) {
 		$db = new Database();
 
-		if ($elementObj -> PK4ba_mat == 2) { $E = $db -> getEByRDCNo(22); }
-		elseif ($elementObj -> PK4ba_mat == 0) { $E = $db -> getEByRDCNo(23); }
+		// later use, get A and I from ba_sections
+		$sectionObj = Section::getRecordByRcdNo($elementObj -> PK4ba_g);
+		$A = array(
+			'A_start' => 0,
+			'A_end' => 0
+		);
+		$I = array(
+			'Ix_start' => 0,
+			'Ix_end' => 0,
+			'Iy_start' => 0,
+			'Iy_end' => 0
+		);
+		if ($sectionObj != null) {
+			$A = array(
+				'A_start' => $sectionObj -> get('A_start'),
+				'A_end' => $sectionObj -> get('A_end')
+			);
+			$I = array(
+				'Ix_start' => $sectionObj -> get('Ix_start'),
+				'Ix_end' => $sectionObj -> get('Ix_end'),
+				'Iy_start' => $sectionObj -> get('Iy_start'),
+				'Iy_end' => $sectionObj -> get('Iy_end')
+			);
+		}
+
+
+		// get E
+		if ($elementObj -> PK4ba_mat == 2) { $materialObj = Material::getRecordByRcdNo(22); }
+		elseif ($elementObj -> PK4ba_mat == 0) { $materialObj = Material::getRecordByRcdNo(23); }
+		$E = ($materialObj != null) ? $materialObj -> get('E') : 0;
+		
 		$I = $elementObj -> PK4ba_g;
 		$EI = $E * $I;
 		$le = $elementObj -> getLength();
@@ -133,15 +163,15 @@ class FEA {
 		// echo "\nF = \n\n";
 		// Utilities::showArray($F, count($F));
 
-		print "<pre>";
-		print_r($w0);
-		print "</pre>";
+		// print "<pre>";
+		// print_r($w0);
+		// print "</pre>";
 
-		echo "\nw1 = <br /><br />";
-		Utilities::showArray($w1, $ndof, 1, "<br />");
+		// echo "\nw1 = <br /><br />";
+		// Utilities::showArray($w1, $ndof, 1, "<br />");
 
-		echo "<br />w4 = <br /><br />";
-		Utilities::showArray($w4, $c + 1, 1, "<br />");
+		// echo "<br />w4 = <br /><br />";
+		// Utilities::showArray($w4, $c + 1, 1, "<br />");
 
 		return $w0;
 	}

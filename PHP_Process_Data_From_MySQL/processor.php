@@ -18,22 +18,22 @@ $db = new Database();
 $data = $db -> getData(14);
 
 $fea = new FEA($data, 0.5);
-$F = $fea -> generateF();
-Utilities::showArray($F, count($F), 1, "<br />");
+// $F = $fea -> generateF();
+// Utilities::showArray($F, count($F), 1, "<br />");
 
-echo "<br />\$k_e checking for element $elementIndex:";
-echo "<br />\$k_e first approach checking:<br />";
-$k_e1 = $fea -> generateKE_1($fea -> mesh -> connections[$elementIndex]);
-Utilities::showArray($k_e1, 4, 4, "<br />", "&nbsp;&nbsp;&nbsp;&nbsp;");
-echo "<br /><br />\$k_e second approach checking (polynomial):<br />";
-$k_e2 = $fea -> generateKE_2($fea -> mesh -> connections[$elementIndex]);
-Utilities::showArray($k_e2, 4, 4, "<br />", "&nbsp;&nbsp;&nbsp;&nbsp;");
+// echo "<br />\$k_e checking for element $elementIndex:";
+// echo "<br />\$k_e first approach checking:<br />";
+// $k_e1 = $fea -> generateKE_1($fea -> mesh -> connections[$elementIndex]);
+// Utilities::showArray($k_e1, 4, 4, "<br />", "&nbsp;&nbsp;&nbsp;&nbsp;");
+// echo "<br /><br />\$k_e second approach checking (polynomial):<br />";
+// $k_e2 = $fea -> generateKE_2($fea -> mesh -> connections[$elementIndex]);
+// Utilities::showArray($k_e2, 4, 4, "<br />", "&nbsp;&nbsp;&nbsp;&nbsp;");
 
-echo "<br /><br />\$K checking:<br />";
-$K = $fea -> assembleKMatrix();
-Utilities::showArray($K, count($K), count($K[0]), "<br />", "&nbsp;&nbsp;");
+// echo "<br /><br />\$K checking:<br />";
+// $K = $fea -> assembleKMatrix();
+// Utilities::showArray($K, count($K), count($K[0]), "<br />", "&nbsp;&nbsp;");
 
-echo "<br /><br />K\F <br />";
+// echo "<br /><br />K\F <br />";
 $FK = $fea -> runAnalysis();
 ?>
 <div id='container-highchart'>

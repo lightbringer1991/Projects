@@ -58,6 +58,36 @@ class Mesh_1D {
 				'n_start' => array_search($this -> connections[$i] -> startNode, $this -> nodes),
 				'n_end' => array_search($this -> connections[$i] -> endNode, $this -> nodes)
 			);
+
+			// get material information
+			$materialObj = Material::getRecordByRcdNo($this -> connections[$i] -> PK4ba_mat );
+			if ($materialObj != null) {
+				$elementData['E'] = $materialObj -> get('E');
+				$elementData['Rho'] = $materialObj -> get('Rho');
+				$elementData['G'] = $materialObj -> get('G');
+			} else {
+				$elementData['E'] = '';
+				$elementData['Rho'] = '';
+				$elementData['G'] = '';
+			}
+
+			// get section information
+			$sectionObj = Section::getRecordByRcdNo($this -> connections[$i] -> PK4ba_g );
+			if ($sectionObj != null) {
+				$elementData['A_start'] = $sectionObj -> get('A_start');
+				$elementData['A_end'] = $sectionObj -> get('A_end');
+				$elementData['Ix_start'] = $sectionObj -> get('Ix_start');
+				$elementData['Ix_end'] = $sectionObj -> get('Ix_end');
+				$elementData['Iy_start'] = $sectionObj -> get('Iy_start');
+				$elementData['Iy_end'] = $sectionObj -> get('Iy_end');
+			} else {
+				$elementData['A_start'] = '';
+				$elementData['A_end'] = '';
+				$elementData['Ix_start'] = '';
+				$elementData['Ix_end'] = '';
+				$elementData['Iy_start'] = '';
+				$elementData['Iy_end'] = '';
+			}
 			array_push($dataArray['elements'], $elementData);
 		}
 

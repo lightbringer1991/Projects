@@ -18,5 +18,11 @@ class Material extends ModelBase {
 	public static function getAllRecordsByUsersCalcPK($user_no) {
 		return self::getAllRecordsByCondition("`userscalcPK`=$user_no");
 	}
+
+	public static function getRecordByRcdNo($rcdNo) {
+		$materialList = self::getAllRecordsByCondition("`rcdNo`=$rcdNo");
+		if (empty($materialList)) { return null; }
+		else { return $materialList[0]; }
+	}
 }
 ?>
