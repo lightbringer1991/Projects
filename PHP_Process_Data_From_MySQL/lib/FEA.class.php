@@ -16,9 +16,20 @@ class FEA {
 	}
 
 	// F = array($totalNodes * 6) = {fx_1, fy_1, fz_1, mx_1, my_1, mz_1, fx_2, fy_2, ...}
-	public function generateF() {
+	// $ilcList: list of ilcs to run analysis on
+	// empty($ilcsList) => run all ilcs
+	public function generateF($ilcsList = array()) {
+		$nodeList = array();
+		if (empty($ilcsList)) { $nodeList = $this -> mesh -> nodes; }
+		else {
+			foreach ($ilcsList as $ilcsObj) {
+				$nodeList = array_merge($this -> mesh -> getNodesByIlcs($ilcsObj));
+			}
+			$nodeList = Node::quickSort($nodeList);			
+		}
+
 		$output = array();
-		foreach ($this -> mesh -> nodes as $n) {
+		foreach ($nodeList as $n) {
 			$output = array_merge( $output, $n -> loading -> exportToArray() );
 		}
 		return $output;
@@ -127,7 +138,9 @@ class FEA {
 	}
 
 	// perform FEA analysis
-	public function runAnalysis() {
+	// $ilcList: list of ilcs to run analysis on
+	// empty($ilcsList) => run all ilcs
+	public function runAnalysis($ilcsList = array()) {
 		// get Beam length
 		$connect = new Connect($this -> mesh -> nodes[0], $this -> mesh -> nodes[count($this -> mesh -> nodes) - 1], 0, 0);
 		$beamLength = $connect -> getLength();
@@ -135,7 +148,7 @@ class FEA {
 		$ndof = (count($this -> mesh -> connections) + 1) * 2;
 		$xv = array(0, $ndof - 2);
 		$K = $this -> assembleKMatrix();
-		$F = $this -> generateF();
+		$F = $this -> generateF($ilcsList);
 
 		// calculations
 		$K = Utilities::removeRow($K, $xv);
