@@ -290,17 +290,6 @@ width=450&amp;action=like&amp;colorscheme=light" scrolling="no" frameborder="0" 
     cursor: pointer;
 }
 
-.modal-nopadding {
-    padding: 0;
-    padding-left: 70px;
-    padding-right: 70px;
-}
-
-
-.modal-xlg {
-    width: 70%;
-}
-
 /* CSS code for typeahead, will need to be moved to a separate CSS later */
 .twitter-typeahead {
     display: inline !important;

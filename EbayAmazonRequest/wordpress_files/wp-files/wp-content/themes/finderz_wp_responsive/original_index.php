@@ -105,35 +105,59 @@ width=450&amp;action=like&amp;colorscheme=light" scrolling="no" frameborder="0" 
 
 
             <section class="search_form_cl clearfix">
-                <form action="/" class="search_form row" id='form-keywordSearch'>
-                    <div class='col-xs-12 col-sm-12 col-md-12 col-lg-12'>
-                    <!-- <span class="typed_span"></span> -->
-                    <div class='input_btn_wrap row'>
-                        <input type='search' class='search_sf col-xs-12 col-sm-12 col-md-8 col-lg-8' maxlength='120' name='keyword' placeholder='' />
-                        <button class="submit_sf col-xs-12 col-sm-12 col-md-4 col-lg-4" style='margin-bottom: 2px; z-index: 200;' type="submit"><i class="fa fa-search"></i> Search</button>
-                    </div>
+                <form action="/" class="search_form">
+                    <span class="typed_span"></span>
+                <span class="input_btn_wrap">
+                    <input type="search" maxlength="120"  class="search_sf"  placeholder=""/>
+                <button  class="submit_sf" type="submit"><i class="fa fa-search"></i> Search</button>
 
-                    <div class="search_trends_cl text-center clearfix row" style='margin-top: 25px;'>
+                </span>
+
+                    <div class="search_trends_cl text-center clearfix">
                         <h4><?php echo get_field('trending_searches_sp',get_the_ID(),false); ?></h4>
                     </div>
-                    </div>
-                </form>
-            </section>
+                    <!--search_trends_cl text-center clearfix-->
 
-<!--             <section class="search_form_cl clearfix">
-                <form action="/" class="search_form" id='form-keywordSearch'>
-                    <span class="typed_span"></span>
-                    <div class='input_btn_wrap row'>
-                        <input type='search' class='search_sf' style='margin-left: 2%; width: 90%;' maxlength='120' name='keyword' placeholder='' />
-                        <button class="submit_sf" style='position: absolute; top: 0px; right: 0px;z-index: 200;' type="submit"><i class="fa fa-search"></i> Search</button>
-                    </div>
 
-                    <div class="search_trends_cl text-center clearfix row">
-                        <h4><?php //echo get_field('trending_searches_sp',get_the_ID(),false); ?></h4>
+                    <div class="search_results clearfix">
+
+                        <div class="col-md-6 sr1 clearfix">
+
+                            <ul>
+                                <li>iPhone 6 white</li>
+                                <li>iPhone 6 white</li>
+                                <li>iPhone 6 white</li>
+                                <li>iPhone 6 white</li>
+                                <li>iPhone 6 white</li>
+                            </ul>
+
+                        </div>
+                        <!--col-md-6 sr1 clearfix-->
+
+
+                        <div class="col-md-6 sr1 clearfix">
+
+                            <ul>
+                                <li>iPhone 6 white</li>
+                                <li>iPhone 6 white</li>
+                                <li>iPhone 6 white</li>
+                                <li>iPhone 6 white</li>
+                                <li>iPhone 6 white</li>
+                            </ul>
+
+                        </div>
+                        <!--col-md-6 sr1 clearfix-->
+
                     </div>
+                    <!--search_results clearfix-->
+
+
                 </form>
+
+
+
             </section>
- -->            <!--search_form_cl clearfix-->
+            <!--search_form_cl clearfix-->
 
 
 
@@ -209,30 +233,7 @@ width=450&amp;action=like&amp;colorscheme=light" scrolling="no" frameborder="0" 
         <?php endwhile; ?>
         <?php wp_reset_query(); ?>
 
-<style type='text/css'>
-.suggestion_item {
-    color: #778192;
-    cursor: pointer;
-    display: block;
-    line-height: 30px;
-}
 
-.suggestion_item:hover {
-    font-weight: bold;
-}
-
-</style>
-
-<script src="<?php echo get_stylesheet_directory_uri(); ?>/index.js"></script>
-<script type='text/javascript'>
-$(document).ready(function() {
-    indexActions.init({
-        form_search: $("#form-keywordSearch"),
-        string_typeCode: $("#typed-strings").html(),
-        ajax_getResult: "<?php echo admin_url('searchEngine/searchEngine.php'); ?>"
-    });
-});
-</script>
 
 
 

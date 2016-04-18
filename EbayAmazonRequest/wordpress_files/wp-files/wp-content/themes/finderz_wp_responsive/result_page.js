@@ -33,6 +33,26 @@ var utilities = {
 		} else {
 			return uri + separator + key + "=" + value;
 		}
+	},
+	// add ',' for thousand display
+	formatNumber: function(number) {
+		return number.replace(/(\d)(?=(\d{3})+$)/g, '$1,');
+	},
+	// truncate text to prevent text overflow
+	truncateText: function(text) {
+		var length = 50;						// max 50 characters are displayed
+		if ($(window).width() < 767) {
+			length = 30;
+		} else if ($(window).width() < 1200) {
+			length = 40;
+		}
+
+		if (text.length > length) {
+			return text.trim().substring(0, length).split(' ').slice(0, -1).join(' ') + '...';
+		} else {
+			return text;
+		}
+		
 	}
 };
 
@@ -168,9 +188,9 @@ var searchActions = {
 						+ "<div class='mv_single_inner clearfix'>"
 							+ "<img class='thumb_preview' src='" + jsonData[i].thumbnail + "' />"
 							+ "<div class='mv_single_meta clearfix' data-target='#modal-youtubeVideo' data-toggle='modal' data-src='" + jsonData[i].url + "'>"
-								+ "<h3>" + jsonData[i].title + "</h3>"
+								+ "<h3>" + utilities.truncateText(jsonData[i].title) + "</h3>"
 								+ "<h4>"
-								+ jsonData[i].views + " views"
+								+ utilities.formatNumber(jsonData[i].views) + " views"
 								+ "<span>" + jsonData[i].duration + "</span>"
 								+ "</h4>"
 								+ "<img class='play_icon' src='" + searchActions.config.image_folder + "play_icon.png" + "' alt='' />"
@@ -255,14 +275,14 @@ var searchActions = {
 				                        + "</div>"
 				                    + "</div>"
 				                    + "<div class='text_pn_bottom text_pn_top text_bottom pull-left clearfix'>"
-				                        + "<h2>" + productItem.title + "</h2>"
+				                        + "<h2>" + utilities.truncateText(productItem.title) + "</h2>"
 				                        + "<a data-store='" + productItem.store + "' data-role='moreDetails' target='_blank' href='#'><span>More details</span> &gt;&gt;</a>"
 				                        + "<div class='clearfix display_mobile mobile_extra_meta'>"
-				                            + "<a href='#' class='v_store'><img src='" + searchActions.config.image_folder + "v_store.png" + "' /></a>"
+				                            + "<a href='" + productItem.url + "' class='v_store' target='_blank'><img src='" + searchActions.config.image_folder + "v_store.png" + "' /></a>"
 				                            + "<div class='clearfix p_shipping_top p_shipping_bottom text_bottom pull-left'>"
 				                                + "<h4><span class='show_mobile'>Shipping </span>" + productItem.shippingCost + "</h4>"
 				                            + "</div>"
-				                            + "<a href='#' class='urating_link'>###</a>"
+				                            + reviewCode
 				                        + "</div>"
 				                    + "</div>"
 				                + "</div>"

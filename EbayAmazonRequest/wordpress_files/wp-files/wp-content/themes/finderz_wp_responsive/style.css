@@ -604,7 +604,7 @@ section{
 
 .img_pn_bottom{
     display: inline-block;
-    width: 100%;
+    /*width: 100%;*/
     height: 100%;
 }
 
@@ -1038,7 +1038,7 @@ body.page-template-result_page{
 
 /* CSS code for typeahead, will need to be moved to a separate CSS later */
 .twitter-typeahead {
-    display: inline !important;
+    /*display: inline !important;*/
     position: absolute !important;
     width: 100%;
     /*right: 2%;*/
@@ -1094,4 +1094,29 @@ body.page-template-result_page{
 
 .tt-suggestion p {
     margin: 0;
+}
+
+/* result page responsive */
+@media (max-width: 600px) {
+    .modal-xlg {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .modal-nopadding {
+        padding: 0;
+    }
+}
+
+@media (min-width: 601px) {
+    .modal-xlg {
+        width: 70%;
+    }
+
+    .modal-nopadding {
+        padding: 0;
+        padding-left: 70px;
+        padding-right: 70px;
+    }
 }
