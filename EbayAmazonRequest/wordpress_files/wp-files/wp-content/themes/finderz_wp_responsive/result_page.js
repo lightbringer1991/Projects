@@ -154,6 +154,7 @@ var searchActions = {
 				var dataArray = utilities.sortPrice([a1[0], a2[0]], true);
 				var htmlCode = searchActions.renderProductList(dataArray);
 				searchActions.config.container_result.find('.pl_bottom').html(htmlCode);
+				searchActions.rescaleImages();
 				searchActions.getEbayItemSold(searchActions.config.container_result);
 			}, 200);
 		});
@@ -265,7 +266,7 @@ var searchActions = {
 				                    + "<div class='image_pn_bottom pull-left clearfix'>"
 				                        + "<div class='inner_image_pn_bottom clearfix'>"
 				                            + "<img class='img_pn_bottom' src='" + productItem.picture + "' alt=''/>"
-				                            + "<a class='product_url' title='Product Link' href='" + productItem.url + "'></a>"
+				                            + "<a class='product_url' title='Product Link' target='_blank' href='" + productItem.url + "'></a>"
 				                            + discountCode
 				                            + "<img class='" + productItem.store + "_btn' src='" + searchActions.config.image_folder + productItem.store + "_btn.png" + "' />"
 				                        + "</div>"
@@ -327,5 +328,25 @@ var searchActions = {
 		var url = $(event.currentTarget).data('src');
 		var iframeCode = '<iframe class="embed-responsive-item" src="' + url + '"></iframe>';
 		searchActions.config.modal_youtubeVideo.find('.modal-body .embed-responsive').html(iframeCode);
+	},
+	rescaleImages: function() {
+		// rescaling pictures to be in the middle of the container
+		searchActions.config.container_result.find(".img_pn_bottom").each(function() {
+			var containerHeight = $(this).parent().height();
+			var imgHeight = $(this).height();
+			var top = (containerHeight - imgHeight) / 2;
+
+			console.log(containerHeight);
+			console.log(imgHeight);
+
+			// fix width
+			var containerWidth = $(this).parent().width();
+			var imgWidth = $(this).width();
+			var left = (containerWidth - imgWidth) / 2;
+
+			$(this).css('position', 'absolute');
+			$(this).css('top', top + "px");
+			$(this).css('left', left + 'px');
+		});
 	}
 };
