@@ -108,9 +108,9 @@ class EbayRequestor {
 				} else {
 					$data['percentagesaved'] = 0;
 				}
-				
-				$data['logo'] = 'images/ebay.jpg';
-				$output[$i -> itemId -> __toString()] = $data;
+				$data['id'] = $i -> itemId -> __toString();
+				$data['store'] = 'ebay';
+				array_push($output, $data);
 			}
 			
 		} catch(Exception $e) {

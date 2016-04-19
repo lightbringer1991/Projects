@@ -36,18 +36,13 @@ class GoogleRequestor {
 				'maxResults' => $maxResults,
 				'order' => 'viewCount'
 			));
-
-			echo "<pre>";
-			print_r($searchResponse);
-			echo "</pre>";
-
 			$videos = array();
 			$videoIds = array();
 			foreach ($searchResponse['items'] as $result) {
 				array_push($videoIds, $result['id']['videoId']);
 				$videos[$result['id']['videoId']] = array(
 					'url' => $this -> youtubeBaseURL . $result['id']['videoId'],
-					'thumbnail' => $result['snippet']['thumbnails']['medium']['url'],
+					'thumbnail' => $result['snippet']['thumbnails']['high']['url'],
 					'title' => $result['snippet']['title']
 				);
 			}

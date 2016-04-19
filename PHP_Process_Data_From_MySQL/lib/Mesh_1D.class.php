@@ -31,6 +31,27 @@ class Mesh_1D {
 
 	}
 
+	// get all nodes within an ilcs
+	public function getNodesByIlcs($ilcsObj) {
+		$nodeList = array();
+		$nodes = $ilcsObj -> getNodes();
+		if (count($nodes) > 1) {
+			$i = 0;
+			while ( ($i < count($this -> nodes)) && ($this -> nodes[$i] -> compare($nodes[0]) != 0) ) { $i++; }
+			while ( ($i < count($this -> nodes)) && ($this -> nodes[$i] -> compare($nodes[1]) != 0) ) {
+				array_push($nodeList, $this -> nodes[$i]);
+				$i++;
+			}
+			array_push($nodeList, $this -> nodes[$i]);
+		} else {
+			$i = 0;
+			while ( ($i < count($this -> nodes)) && ($this -> nodes[$i] -> compare($nodes[0]) != 0) ) { $i++; }
+			array_push($nodeList, $this -> nodes[$i]);
+		}
+
+		return $nodeList;
+	}
+
 	// must be executed after run() function
 	public function toJSON() {
 		$dataArray = array(
