@@ -355,7 +355,7 @@ width=450&amp;action=like&amp;colorscheme=light" scrolling="no" frameborder="0" 
     Searching ...
 </div>
 
-<div class='modal fade' id='modal-youtubeVideo' role='dialog' style='vertical-align: middle;'>
+<div class='modal fade' id='modal-youtubeVideo' role='dialog'>
     <div class="modal-dialog modal-xlg">
         <div class="modal-content" style='background-color: black;'>
             <div class='row'>
@@ -377,7 +377,7 @@ width=450&amp;action=like&amp;colorscheme=light" scrolling="no" frameborder="0" 
         <h4 class="modal-title">What People Say</h4>
     </div>
     <div class="modal-body">
-        <iframe class='col-sm-12 col-md-12 col-lg-12' height='600px'></iframe>
+        <iframe class='col-xs-12 col-sm-12 col-md-12 col-lg-12' height='600px'></iframe>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

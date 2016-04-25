@@ -3,6 +3,7 @@ var utilities = {
 		/*
 			jsonStringArray: array of JSON string output from search ajax call
 		*/
+
 		var jsonObjList = [];
 		for (var i = 0; i < jsonStringArray.length; i++) {
 			var jsonData = JSON.parse(jsonStringArray[i]);
@@ -52,7 +53,6 @@ var utilities = {
 		} else {
 			return text;
 		}
-		
 	}
 };
 
@@ -69,7 +69,10 @@ var searchActions = {
 
 		obj_bloodhound: null,
 
-		ajax_getResult: 'searchEngine.php'
+		ajax_getResult: 'searchEngine.php',
+
+		// temporary variables
+		imgList: null
 	},
 	init: function(newSettings) {
 		searchActions.config = $.extend(searchActions.config, newSettings);
@@ -125,12 +128,18 @@ var searchActions = {
 		searchActions.config.modal_youtubeVideo.on('show.bs.modal', function(event) {
 			// should have the same percentage with .modal-xlg in the css style
 			var modal_height = window.innerWidth * 70 / 100 * 9 /16;
-			searchActions.config.modal_youtubeVideo.find('.modal-dialog').css("margin-top", Math.max(0, (window.innerHeight - modal_height) / 2));
+			// position the modal to be 60% from the top
+			searchActions.config.modal_youtubeVideo.find('.modal-dialog').css("margin-top", Math.max(0, (window.innerHeight - modal_height) * 0.6));
 		});
 		// stop video from playing if user close the popup
 		searchActions.config.modal_youtubeVideo.on('hidden.bs.modal', function(event) {
 			$(event.currentTarget).find('.modal-body .embed-responsive').html("");
 		});
+
+		$(window).resize(searchActions.rescaleImages);
+
+		// setInterval(searchActions.rescaleImages, 1000);				// keep rescaling images
+		// searchActions.config.container_result.find('.pl_bottom .img_pn_bottom').load(searchActions.load_rescaleImage);
 	},
 	ajaxCall: function(keyword, site) {
 		return $.ajax({
@@ -153,9 +162,10 @@ var searchActions = {
 			setTimeout(function() {
 				var dataArray = utilities.sortPrice([a1[0], a2[0]], true);
 				var htmlCode = searchActions.renderProductList(dataArray);
-				searchActions.config.container_result.find('.pl_bottom').html(htmlCode);
-				searchActions.rescaleImages();
+				searchActions.config.container_result.find('.pl_bottom').empty().html(htmlCode);
+				// searchActions.config.container_result.find('.pl_bottom').promise().done(searchActions.rescaleImages);
 				searchActions.getEbayItemSold(searchActions.config.container_result);
+				searchActions.rescaleImages();
 			}, 200);
 		});
 	},
@@ -234,27 +244,24 @@ var searchActions = {
 		var discountCode = "";
 		if (productItem.percentagesaved != 0) {
 			discountCode = "<span class='red_star'>"
-								+ "<strong>" + productItem.percentagesaved + "%</strong><br /> OFF"
+								+ "<strong>" + Math.round(productItem.percentagesaved) + "%</strong><br /> OFF"
 							+ "</span>";
 		}
 
 		// render price display
 		var priceCode = "";
 		if (productItem.price == 'Too low to display') {
-			priceCode = "<div class='display_mobile p_price_bottom p_price_top text_bottom pull-left clearfix'>"
-							+ "<h3>Too low<br/> to display</h3>"
-						+ "</div>";
+			// priceCode = "<div class='display_mobile p_price_bottom p_price_top text_bottom pull-left clearfix'>"
+			// 				+ "<h3>Too low<br/> to display</h3>"
+			// 			+ "</div>";
+			priceCode = "<h3>Too low<br/> to display</h3>";
 		} else if ( (productItem.listprice != 0) && (productItem.price != productItem.listprice) ) {
 			// item has discount
-			priceCode = "<div class='p_price_bottom p_price_top text_bottom pull-left clearfix'>"
-							+ "<h4>$" + productItem.listprice + "</h4>"
-							+ "<h3>$" + productItem.price + "</h3>"
-						+ "</div>";
+			priceCode = "<h4>$" + Number(productItem.listprice).toFixed(2) + "</h4>"
+						+ "<h3>$" + Number(productItem.price).toFixed(2) + "</h3>";
 		} else {
 			// normal price
-			priceCode = "<div class='p_price_bottom p_price_top text_bottom pull-left clearfix'>"
-							+ "<h3>$" + productItem.price + "</h3>"
-						+ "</div>";
+			priceCode = "<h3>$" + Number(productItem.price).toFixed(2) + "</h3>";
 		}
 
 		// render product item
@@ -272,7 +279,7 @@ var searchActions = {
 				                        + "</div>"
 
 				                        + "<div class='display_mobile p_price_bottom p_price_top text_bottom pull-left clearfix'>"
-				                            + "<h3>Too low<br/> to display</h3>"
+				                            + priceCode
 				                        + "</div>"
 				                    + "</div>"
 				                    + "<div class='text_pn_bottom text_pn_top text_bottom pull-left clearfix'>"
@@ -287,7 +294,9 @@ var searchActions = {
 				                        + "</div>"
 				                    + "</div>"
 				                + "</div>"
-				                + priceCode
+				                + "<div class='p_price_bottom p_price_top text_bottom pull-left clearfix'>"
+				                	+ priceCode
+				                + "</div>"
 				                + "<div class='clearfix p_shipping_top p_shipping_bottom text_bottom pull-left'>"
 				                    + "<h4>" + productItem.shippingCost + "</h4>"
 				                + "</div>"
@@ -330,23 +339,57 @@ var searchActions = {
 		searchActions.config.modal_youtubeVideo.find('.modal-body .embed-responsive').html(iframeCode);
 	},
 	rescaleImages: function() {
-		// rescaling pictures to be in the middle of the container
-		searchActions.config.container_result.find(".img_pn_bottom").each(function() {
-			var containerHeight = $(this).parent().height();
-			var imgHeight = $(this).height();
-			var top = (containerHeight - imgHeight) / 2;
+		if ( (searchActions.config.imgList == null) || (searchActions.config.imgList.length == 0) ) {
+			// only get the list if it is the new result load
+			searchActions.config.imgList = searchActions.config.container_result.find(".img_pn_bottom");
+		} else {
+			// otherwise just continue with the remaining
+			searchActions.config.imgList = searchActions.rescaleImagesList(searchActions.config.imgList);
+		}
+		
+		if (searchActions.config.imgList.length > 0) { setTimeout(searchActions.rescaleImages, 200); }
+		else {
+			// reset variable for next time
+			searchActions.config.imgList == null;
+		}
+	},
+	rescaleImagesList: function(imgArray) {
+		var unprocessedList = [];
+		for (var i = 0; i < imgArray.length; i++) {
+			var containerHeight = $(imgArray[i]).parent().height();
+			var containerWidth = $(imgArray[i]).parent().width();
+			var imgHeight = $(imgArray[i]).height();
+			var imgWidth = $(imgArray[i]).width();
 
-			console.log(containerHeight);
-			console.log(imgHeight);
+			// rerun this function after 200ms
+			if (imgHeight == 0) { unprocessedList.push(imgArray[i]); continue; }
 
-			// fix width
-			var containerWidth = $(this).parent().width();
-			var imgWidth = $(this).width();
-			var left = (containerWidth - imgWidth) / 2;
+			var ratio = imgHeight / imgWidth;
 
-			$(this).css('position', 'absolute');
-			$(this).css('top', top + "px");
-			$(this).css('left', left + 'px');
-		});
+			var top = 0;
+			var left = 0;
+
+			if ( (imgHeight / containerHeight < 0.7) || (imgWidth / containerWidth < 0.7) ) {
+				// skip scaling if image size if less than 70% of the container
+				top = (containerHeight - imgHeight) / 2;
+				left = (containerWidth - imgWidth) / 2;
+			} else if (imgHeight >= imgWidth) {
+				imgHeight = containerHeight;
+				imgWidth = imgHeight / ratio;
+				left = (containerWidth - imgWidth) / 2;
+			} else {
+				imgWidth = containerWidth;
+				imgHeight = imgWidth * ratio;
+				top = (containerHeight - imgHeight) / 2;
+			}
+
+			$(imgArray[i]).css('position', 'absolute');
+			$(imgArray[i]).css('width', imgWidth);
+			$(imgArray[i]).css('height', imgHeight);
+			$(imgArray[i]).css('top', top + "px");
+			$(imgArray[i]).css('left', left + 'px');
+		}
+
+		return unprocessedList;
 	}
 };

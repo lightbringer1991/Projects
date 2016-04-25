@@ -239,8 +239,8 @@ input.search_sf { /* Chrome/Opera/Safari */
 }
 
 .search_trends_cl{
-    /*margin-top: 20px;*/
-    margin-top: 60px;
+    /*margin-top: 10px;*/
+    /*margin-top: 60px;*/
     font-family: 'Open Sans',sans-serif;
 }
 .search_trends_cl h4{
@@ -472,7 +472,7 @@ section{
 }
 
 .mv_single:hover{
-    opacity: 0.7;
+    opacity: 0.4;
 }
 
 .thumb_preview{
@@ -1039,6 +1039,10 @@ body.page-template-result_page{
 }
 
 
+.thumb_preview {
+    opacity: 0.5;
+}
+
 /* CSS code for typeahead, will need to be moved to a separate CSS later */
 .twitter-typeahead {
     /*display: inline !important;*/
@@ -1105,6 +1109,7 @@ body.page-template-result_page{
         width: 100%;
         margin-left: 0;
         margin-right: 0;
+        margin-top: 40% !important;
     }
 
     .modal-nopadding {
@@ -1122,4 +1127,10 @@ body.page-template-result_page{
         padding-left: 70px;
         padding-right: 70px;
     }
+
+    .modal-youtubeVideo {
+        vertical-align: middle;
+    }
 }
+
+

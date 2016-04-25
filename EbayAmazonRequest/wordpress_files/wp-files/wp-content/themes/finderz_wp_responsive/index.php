@@ -110,10 +110,10 @@ width=450&amp;action=like&amp;colorscheme=light" scrolling="no" frameborder="0" 
                     <!-- <span class="typed_span"></span> -->
                     <div class='input_btn_wrap row'>
                         <input type='search' class='search_sf col-xs-12 col-sm-12 col-md-8 col-lg-8' maxlength='120' name='keyword' placeholder='' />
-                        <button class="submit_sf col-xs-12 col-sm-12 col-md-4 col-lg-4" style='margin-bottom: 2px; z-index: 200;' type="submit"><i class="fa fa-search"></i> Search</button>
+                        <button class="submit_sf col-xs-12 col-sm-12 col-md-4 col-lg-4" style='margin-bottom: 2px; z-index: 10;' type="submit"><i class="fa fa-search"></i> Search</button>
                     </div>
 
-                    <div class="search_trends_cl text-center clearfix row" style='margin-top: 25px;'>
+                    <div class="search_trends_cl text-center clearfix row">
                         <h4><?php echo get_field('trending_searches_sp',get_the_ID(),false); ?></h4>
                     </div>
                     </div>

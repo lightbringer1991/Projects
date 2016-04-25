@@ -68,18 +68,22 @@ var indexActions = {
 			$(document).find(".tt-open .tt-dataset").addClass('row');
 			// $(document).find(".tt-menu").css("width", "105%");
 
-			if ($(window).width() > 767 && $(window).width() < 1200) {
-				$(document).find(".tt-menu").css("margin-top", "9%");
-			} else{
-				$(document).find(".tt-menu").css("margin-top", "17%");
-			}
+			// if ($(window).width() > 767 && $(window).width() < 1200) {
+			// 	$(document).find(".tt-menu").css("margin-top", "9%");
+			// } else{
+			// 	$(document).find(".tt-menu").css("margin-top", "35%");
+			// }
 	    });
 
 	    // rescale trends and input if mobile screen is too small
 		if ($(window).width() < 767) {
 			indexActions.config.form_search.find("input[name='keyword']").css('background-color', '');
-			indexActions.config.form_search.find('.search_trends_cl').css('margin-top','17%');
+			// indexActions.config.form_search.find('.search_trends_cl').css('margin-top','17%');
 		}
+
+		// rescale main content to make sure the footer stays at the bottom
+		var headerHeight = $('.home_page_wrap').height();
+		$('.home_page_wrap').css('height', headerHeight + "px");
 	},
 	// perform type behaviour
 	initiateTypeString: function() {

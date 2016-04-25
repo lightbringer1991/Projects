@@ -78,15 +78,14 @@ class AmazonRequestor {
 			$reviewURLList = array();
 			foreach ($simpleXML -> Items -> Item as $i) {
 				// get display picture URL
-				$picture = "";
-				if (isset($i -> MediumImage)) {
+				$picture = "images/amazon-noimage.jpg";
+				if (isset($i -> LargeImage)) {
+					$picture = $i -> LargeImage -> URL -> __toString();
+				} elseif (isset($i -> MediumImage)) {
 					$picture = $i -> MediumImage -> URL -> __toString();
 				} elseif (isset($i -> ImageSets)) {
 					$imageSetList = $i -> ImageSets -> ImageSet;
-					$picture = $imageSetList[0] -> MediumImage -> URL -> __toString();
-				} else {
-					// display no image available
-					$picture = "images/amazon-noimage.jpg";
+					$picture = $imageSetList[0] -> LargeImage -> URL -> __toString();
 				}
 
 				$data = array();
