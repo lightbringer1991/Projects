@@ -11,7 +11,8 @@ var indexActions = {
 		backDelay: 1500,
 		currentTextIndex: 0,
 
-		obj_bloodhound: null
+		obj_bloodhound: null,
+		html_currentSuggestion: null
 	},
 	init: function(newSettings) {
 		indexActions.config = $.extend(indexActions.config, newSettings);
@@ -58,6 +59,7 @@ var indexActions = {
 		// implement typeahead
 		indexActions.config.form_search.find("input[name='keyword']").typeahead(null, {
 	        source: indexActions.config.obj_bloodhound,
+	        async: true,
 	        limit: 'Infinity',
 	        templates: {
 	            suggestion: function (data) {
@@ -66,24 +68,35 @@ var indexActions = {
 	        }
 	    }).on('typeahead:open', function() {
 			$(document).find(".tt-open .tt-dataset").addClass('row');
-			// $(document).find(".tt-menu").css("width", "105%");
-
-			// if ($(window).width() > 767 && $(window).width() < 1200) {
-			// 	$(document).find(".tt-menu").css("margin-top", "9%");
-			// } else{
-			// 	$(document).find(".tt-menu").css("margin-top", "35%");
-			// }
+			// var height = $(".home_page_wrap").height();
+			// $(".home_page_wrap").height(height);
+	    }).on('typeahead:close', function() {
+			// var height = $(".home_page_wrap").height();
+			// $(".home_page_wrap").height(height);
+	    }).on('typeahead:asyncrequest', function() {
+	    	// first time rendering
+	    	if (indexActions.config.html_currentSuggestion != null) {
+	    		indexActions.config.form_search.find(".tt-menu .tt-dataset").html(indexActions.config.html_currentSuggestion);
+	    		indexActions.config.form_search.find(".tt-menu").css('display', 'block');
+	    	}
+	    }).on('typeahead:asyncreceive', function() {
+	    	// first time rendering
+	    	if (indexActions.config.form_search.find(".tt-open .tt-dataset").html() != '') {
+	    		indexActions.config.html_currentSuggestion = indexActions.config.form_search.find(".tt-open .tt-dataset").html();
+	    	}
+	    }).on('typeahead:select', function() {
+	    	// start searching after user click on a suggestion
+	    	indexActions.config.form_search.trigger('submit');
 	    });
 
 	    // rescale trends and input if mobile screen is too small
 		if ($(window).width() < 767) {
 			indexActions.config.form_search.find("input[name='keyword']").css('background-color', '');
-			// indexActions.config.form_search.find('.search_trends_cl').css('margin-top','17%');
 		}
 
 		// rescale main content to make sure the footer stays at the bottom
-		var headerHeight = $('.home_page_wrap').height();
-		$('.home_page_wrap').css('height', headerHeight + "px");
+		// var headerHeight = $('.home_page_wrap').height();
+		// $('.home_page_wrap').css('height', headerHeight + "px");
 	},
 	// perform type behaviour
 	initiateTypeString: function() {

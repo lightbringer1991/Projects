@@ -90,12 +90,15 @@ class EbayRequestor {
 					$picture = $i -> galleryURL -> __toString();
 				}
 
+				$listPrice = str_replace(',', '', $listPrice);
+				$price = str_replace(',', '', $i -> sellingStatus -> currentPrice -> __toString());
+
 				$priceAttributes = $i -> sellingStatus -> currentPrice -> attributes();
 				$data = array(
 					'picture' => $picture,
 					'url' => $i -> viewItemURL -> __toString(),
 					'title' => $i -> title -> __toString(),
-					'price' => $i -> sellingStatus -> currentPrice -> __toString(),
+					'price' => $price,
 					'listprice' => $listPrice,
 					'currencyId' => $priceAttributes['currencyId'] -> __toString(),
 					'feedback' => $i -> sellerInfo -> positiveFeedbackPercent -> __toString(),

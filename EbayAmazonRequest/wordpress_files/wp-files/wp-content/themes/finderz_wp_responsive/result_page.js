@@ -68,6 +68,7 @@ var searchActions = {
 		image_folder: null,
 
 		obj_bloodhound: null,
+		html_currentSuggestion: null,
 
 		ajax_getResult: 'searchEngine.php',
 
@@ -113,8 +114,22 @@ var searchActions = {
 				}
 			}
 		}).on('typeahead:open', function() {
-			$(document).find(".tt-open .tt-dataset").addClass('row');
-		});
+			searchActions.config.form_search.find(".tt-open .tt-dataset").addClass('row');
+	    }).on('typeahead:asyncrequest', function() {
+	    	// first time rendering
+	    	if (searchActions.config.html_currentSuggestion != null) {
+	    		searchActions.config.form_search.find(".tt-menu .tt-dataset").html(searchActions.config.html_currentSuggestion);
+	    		searchActions.config.form_search.find(".tt-menu").css('display', 'block');
+	    	}
+	    }).on('typeahead:asyncreceive', function() {
+	    	// first time rendering
+	    	if (searchActions.config.form_search.find(".tt-open .tt-dataset").html() != '') {
+	    		searchActions.config.html_currentSuggestion = searchActions.config.form_search.find(".tt-open .tt-dataset").html();
+	    	}
+	    }).on('typeahead:select', function() {
+	    	// start searching after user click on a suggestion
+	    	searchActions.config.form_search.trigger('submit');
+	    });
 
 		searchActions.config.container_loading.hide();
 		searchActions.config.form_search.on('submit', searchActions.submit_searchForm);
@@ -257,6 +272,7 @@ var searchActions = {
 			priceCode = "<h3>Too low<br/> to display</h3>";
 		} else if ( (productItem.listprice != 0) && (productItem.price != productItem.listprice) ) {
 			// item has discount
+			console.log(productItem.id + ": " + productItem.listprice);
 			priceCode = "<h4>$" + Number(productItem.listprice).toFixed(2) + "</h4>"
 						+ "<h3>$" + Number(productItem.price).toFixed(2) + "</h3>";
 		} else {

@@ -104,6 +104,9 @@ class AmazonRequestor {
 						$price = $i -> Offers -> Offer -> OfferListing -> SalePrice -> FormattedPrice -> __toString();
 					}
 
+					$listPrice = str_replace(',', '', $listPrice);
+					$price = str_replace(',', '', $price);
+
 					$data = array(
 						'picture' => $picture,
 						'url' => $i -> DetailPageURL -> __toString(),
